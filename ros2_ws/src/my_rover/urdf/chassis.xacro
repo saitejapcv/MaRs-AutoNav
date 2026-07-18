@@ -13,6 +13,9 @@
             <geometry>
                 <box size='${chassis_length} ${chassis_width} ${chassis_height}'/>
             </geometry>
+            <material name='blue'>
+                <color rgba='0.2 0.2 1.0 1.0'/>
+            </material>
         </visual>
         
         <collision>
