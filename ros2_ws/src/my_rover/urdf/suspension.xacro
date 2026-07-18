@@ -46,7 +46,7 @@
         <parent link='chassis'/>
         <child link='chassis_suspension_rod'/>
         <origin xyz='0 ${chassis_width/2+ chassis_suspension_rod_length} 0' rpy='${pi/2} 0 0'/>
-        <axis xyz='0 0 0'/>
+        <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
     </joint>
     
@@ -54,7 +54,7 @@
         <parent link='chassis'/>
         <child link='chassis_suspension_rod_2'/>
         <origin xyz='0 ${-chassis_width/2 - chassis_suspension_rod_length} 0' rpy='${pi/2} 0 0'/>
-        <axis xyz='0 0 0'/>
+        <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
     </joint>
 
