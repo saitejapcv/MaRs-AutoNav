@@ -6,13 +6,13 @@
         <visual>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <cylinder radius='${chassis_suspension_rod_radius}' height='${chassis_suspension_rod_length}'/>
+                <cylinder radius='${chassis_suspension_rod_radius}' length='${chassis_suspension_rod_length}'/>
             </geometry>
         </visual>
         <collision>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <cylinder radius='${chassis_suspension_rod_radius}' height='${chassis_suspension_rod_length}'/>
+                <cylinder radius='${chassis_suspension_rod_radius}' length='${chassis_suspension_rod_length}'/>
             </geometry>
         </collision>
         <inertial>
@@ -26,13 +26,13 @@
         <visual>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <cylinder radius='${chassis_suspension_rod_radius}' height='${chassis_suspension_rod_length}'/>
+                <cylinder radius='${chassis_suspension_rod_radius}' length='${chassis_suspension_rod_length}'/>
             </geometry>
         </visual>
         <collision>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <cylinder radius='${chassis_suspension_rod_radius}' height='${chassis_suspension_rod_length}'/>
+                <cylinder radius='${chassis_suspension_rod_radius}' length='${chassis_suspension_rod_length}'/>
             </geometry>
         </collision>
         <inertial>
