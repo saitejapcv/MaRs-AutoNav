@@ -10,6 +10,7 @@
 
     <link name='chassis'>
         <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
                 <box size='${chassis_length} ${chassis_width} ${chassis_height}'/>
             </geometry>
@@ -19,11 +20,13 @@
         </visual>
         
         <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
                 <box size='${chassis_length} ${chassis_width} ${chassis_height}'/>
             </geometry>
         </collision>
         <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <mass value='10'/>
             <xacro:box_inertia m="10" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}"/>
         </inertial>
