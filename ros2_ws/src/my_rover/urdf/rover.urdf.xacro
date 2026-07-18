@@ -5,10 +5,10 @@
     <!-- 
         include all the macros and chassis and wheels 
     -->
-    <xacro:include filename="chassis.xacro"/>
-    <xacro:include filename="wheel.xacro"/>
     <xacro:include filename="macros.xacro"/>
     <xacro:include filename="rover_properties.xacro"/>
+    <xacro:include filename="chassis.xacro"/>
+    <xacro:include filename="wheel.xacro"/>
 
     <link name='world'/>
 
