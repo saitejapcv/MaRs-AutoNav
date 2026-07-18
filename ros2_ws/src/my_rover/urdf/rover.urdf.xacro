@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_rover">
+    
+    <!-- 
+        include all the macros and chassis and wheels 
+    -->
+    <xacro:include filename="chassis.xacro"/>
+    <xacro:include filename="wheel.xacro"/>
+    <xacro:include filename="macros.xacro"/>
+    <xacro:include filename="rover_properties.xacro"/>
+
+    <link name='world'/>
+
+</robot>

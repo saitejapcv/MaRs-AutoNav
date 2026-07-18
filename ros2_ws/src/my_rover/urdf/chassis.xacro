@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_rover">
+    
+    <joint name='world_joint' type='fixed'>
+        <parent link='world'/>
+        <child link='chassis'/>
+        <origin xyz='0 0 0'/>
+    </joint>
+
+    <link name='chassis'>
+        <visual>
+            <geometry>
+                <box size='${chassis-length} ${chassis-width} ${chassis-height}'/>
+            </geometry>
+        </visual>
+        
+        <collision>
+            <geometry>
+                <box size='${chassis-length} ${chassis-width} ${chassis-height}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value='10'/>
+            <xacro:box_inertia m="10" x="${chassis-length}" y="${chassis-width}" z="${chassis-height}"/>
+        </inertial>
+    </link>
+
+    
+
+</robot>
