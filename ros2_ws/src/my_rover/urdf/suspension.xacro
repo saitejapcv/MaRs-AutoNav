@@ -45,7 +45,7 @@
     <joint name='chassis_suspension_rod_joint' type='revolute'>
         <parent link='chassis'/>
         <child link='chassis_suspension_rod'/>
-        <origin xyz='0 ${chassis_width/2+ chassis_suspension_rod_length} 0' rpy='${pi/2} 0 0'/>
+        <origin xyz='0 ${chassis_width/2+ chassis_suspension_rod_length/2} 0' rpy='${pi/2} 0 0'/>
         <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
     </joint>
@@ -53,9 +53,113 @@
     <joint name='chassis_suspension_rod_2_joint' type='revolute'>
         <parent link='chassis'/>
         <child link='chassis_suspension_rod_2'/>
-        <origin xyz='0 ${-chassis_width/2 - chassis_suspension_rod_length} 0' rpy='${pi/2} 0 0'/>
+        <origin xyz='0 ${-chassis_width/2 - chassis_suspension_rod_length/2} 0' rpy='${pi/2} 0 0'/>
         <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
+    </joint>
+
+    <link name='suspension_rod'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
+        </inertial>
+    </link>
+
+    <link name='suspension_rod_2'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
+        </inertial>
+    </link>
+
+    <link name='suspension_rod_3'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
+        </inertial>
+    </link>
+
+    <link name='suspension_rod_4'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
+        </inertial>
+    </link>
+
+    <joint name='suspension_rod_joint' type='fixed'>
+        <parent link='chassis_suspension_rod'/>
+        <child link='suspension_rod'/>
+        <origin xyz='0 0 0' rpy='0 ${2*pi/3} 0'/>
+    </joint>
+
+    <joint name='suspension_rod_2_joint' type='fixed'>
+        <parent link='chassis_suspension_rod_2'/>
+        <child link='suspension_rod_2'/>
+        <origin xyz='0 0 0' rpy='0 ${2*pi/3} 0'/>
+    </joint>
+
+    <joint name='suspension_rod_3_joint' type='fixed'>
+        <parent link='chassis_suspension_rod'/>
+        <child link='suspension_rod_3'/>
+        <origin xyz='0 0 0' rpy='0 ${4*pi/3} 0'/>
+    </joint>
+
+    <joint name='suspension_rod_4_joint' type='fixed'>
+        <parent link='chassis_suspension_rod_2'/>
+        <child link='suspension_rod_4'/>
+        <origin xyz='0 0 0' rpy='0 ${4*pi/3} 0'/>
     </joint>
 
 </robot>
