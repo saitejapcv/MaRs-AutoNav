@@ -3,7 +3,7 @@
 
     <link name='wheel-base'>
         <visual>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
@@ -12,13 +12,13 @@
             </material>
         </visual>
         <collision>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
         </inertial>
@@ -26,7 +26,7 @@
     
     <link name='wheel-base_2'>
         <visual>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
@@ -35,13 +35,13 @@
             </material>
         </visual>
         <collision>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
         </inertial>
@@ -49,7 +49,7 @@
 
     <link name='wheel-base_3'>
         <visual>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
@@ -58,13 +58,13 @@
             </material>
         </visual>
         <collision>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
         </inertial>
@@ -72,7 +72,7 @@
 
     <link name='wheel-base_4'>
         <visual>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
@@ -81,13 +81,13 @@
             </material>
         </visual>
         <collision>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-wheel_base_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
         </inertial>
