@@ -141,7 +141,7 @@
     <joint name='suspension_rod_joint' type='fixed'>
         <parent link='chassis_suspension_rod'/>
         <child link='suspension_rod'/>
-        <origin xyz='0 0 0' rpy='${pi/6} ${-pi/2} 0'/>
+        <origin xyz='0 0 0' rpy='${atan2(chassis_height/2 ,chassis_length/2)} ${-pi/2} 0'/>
     </joint>
 
     <joint name='suspension_rod_2_joint' type='fixed'>
