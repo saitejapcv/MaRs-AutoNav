@@ -4,3 +4,4 @@
 # Exception: Keep your specific subfolder
 !/ros2_ws/src/
 .DS_Store
+*.rviz
