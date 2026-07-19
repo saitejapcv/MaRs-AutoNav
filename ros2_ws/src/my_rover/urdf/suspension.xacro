@@ -66,13 +66,13 @@
             </geometry>
         </visual>
         <collision>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
         </inertial>
@@ -86,13 +86,13 @@
             </geometry>
         </visual>
         <collision>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
         </inertial>
@@ -106,13 +106,13 @@
             </geometry>
         </visual>
         <collision>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
         </inertial>
@@ -126,13 +126,13 @@
             </geometry>
         </visual>
         <collision>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
             </geometry>
         </collision>
         <inertial>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <mass value='1'/>
             <xacro:cylinder_inertia m='1' r='${suspension_rod_radius}' h='${suspension_rod_length}'/>
         </inertial>

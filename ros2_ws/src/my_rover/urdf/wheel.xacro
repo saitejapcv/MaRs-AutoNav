@@ -3,118 +3,118 @@
 
     <link name='wheel-base'>
         <visual>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                <material name='black'>
-                    <color rgba='0.2 0.2 0.2 1.0'/>
-                </material>
             </geometry>
-            <collision>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <geometry>
-                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                </geometry>
-            </collision>
-            <inertial>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <mass value='1'/>
-                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
-            </inertial>
+            <material name='black'>
+                <color rgba='0.2 0.2 0.2 1.0'/>
+            </material>
         </visual>
+        <collision>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+        </inertial>
     </link>
     
     <link name='wheel-base_2'>
         <visual>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                <material name='black'>
-                    <color rgba='0.2 0.2 0.2 1.0'/>
-                </material>
             </geometry>
-            <collision>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <geometry>
-                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                </geometry>
-            </collision>
-            <inertial>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <mass value='1'/>
-                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
-            </inertial>
+            <material name='black'>
+                <color rgba='0.2 0.2 0.2 1.0'/>
+            </material>
         </visual>
+        <collision>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+        </inertial>
     </link>
 
     <link name='wheel-base_3'>
         <visual>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                <material name='black'>
-                    <color rgba='0.2 0.2 0.2 1.0'/>
-                </material>
             </geometry>
-            <collision>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <geometry>
-                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                </geometry>
-            </collision>
-            <inertial>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <mass value='1'/>
-                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
-            </inertial>
+            <material name='black'>
+                <color rgba='0.2 0.2 0.2 1.0'/>
+            </material>
         </visual>
+        <collision>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+        </inertial>
     </link>
 
     <link name='wheel-base_4'>
         <visual>
-            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                <material name='black'>
-                    <color rgba='0.2 0.2 0.2 1.0'/>
-                </material>
             </geometry>
-            <collision>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <geometry>
-                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
-                </geometry>
-            </collision>
-            <inertial>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
-                <mass value='1'/>
-                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
-            </inertial>
+            <material name='black'>
+                <color rgba='0.2 0.2 0.2 1.0'/>
+            </material>
         </visual>
+        <collision>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 ${wheel_base_length/2}' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+        </inertial>
     </link>
 
     <joint name='wheel_base_joint' type='fixed'>
         <parent link='suspension_rod'/>
         <child link='wheel-base'/>
-        <origin xyz='0 0 ${suspension_rod_length}' rpy='${pi/2 - atan2(chassis_height/2 ,chassis_length/2)} 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='${-pi/2 - atan2(chassis_height/2 ,chassis_length/2)} 0 0'/>
     </joint>
 
     <joint name='wheel_base_2_joint' type='fixed'>
         <parent link='suspension_rod_2'/>
         <child link='wheel-base_2'/>
-        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='${-pi/2 - atan2(chassis_height/2 ,chassis_length/2)} 0 0'/>
     </joint>
 
     <joint name='wheel_base_3_joint' type='fixed'>
         <parent link='suspension_rod_3'/>
         <child link='wheel-base_3'/>
-        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='${-pi/2 - atan2(chassis_height/2 ,chassis_length/2)} 0 0'/>
     </joint>
 
     <joint name='wheel_base_4_joint' type='fixed'>
         <parent link='suspension_rod_4'/>
         <child link='wheel-base_4'/>
-        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='${-pi/2 - atan2(chassis_height/2 ,chassis_length/2)} 0 0'/>
     </joint>
 
 </robot>
