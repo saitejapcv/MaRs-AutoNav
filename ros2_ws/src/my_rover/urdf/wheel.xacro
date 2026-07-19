@@ -96,7 +96,7 @@
     <joint name='wheel_base_joint' type='fixed'>
         <parent link='suspension_rod'/>
         <child link='wheel-base'/>
-        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='${pi/2 - atan2(chassis_height/2 ,chassis_length/2)} 0 0'/>
     </joint>
 
     <joint name='wheel_base_2_joint' type='fixed'>
