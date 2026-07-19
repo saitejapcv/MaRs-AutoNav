@@ -96,25 +96,25 @@
     <joint name='wheel_base_joint' type='fixed'>
         <parent link='suspension_rod'/>
         <child link='wheel-base'/>
-        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
     </joint>
 
     <joint name='wheel_base_2_joint' type='fixed'>
         <parent link='suspension_rod_2'/>
         <child link='wheel-base_2'/>
-        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
     </joint>
 
     <joint name='wheel_base_3_joint' type='fixed'>
         <parent link='suspension_rod_3'/>
         <child link='wheel-base_3'/>
-        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
     </joint>
 
     <joint name='wheel_base_4_joint' type='fixed'>
         <parent link='suspension_rod_4'/>
         <child link='wheel-base_4'/>
-        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+        <origin xyz='0 0 ${suspension_rod_length}' rpy='0 0 0'/>
     </joint>
 
 </robot>
