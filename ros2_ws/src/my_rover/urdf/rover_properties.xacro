@@ -9,7 +9,7 @@
     <xacro:property name='chassis_suspension_rod_radius' value='0.02'/>
     <xacro:property name='suspension_rod_length' value='${sqrt((chassis_length/2)**2 + (chassis_height/2)**2)}'/>
     <xacro:property name='suspension_rod_radius' value='0.02'/>
-    <xacro:property name='wheel_base_lenght' value='0.08'/>
+    <xacro:property name='wheel_base_length' value='0.08'/>
     <xacro:property name='wheel_base_radius' value='0.05'/>
 
 </robot>
