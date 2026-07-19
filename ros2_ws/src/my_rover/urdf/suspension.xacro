@@ -60,7 +60,7 @@
 
     <link name='suspension_rod'>
         <visual>
-            <origin xyz='0 0 ${-chassis_suspension_rod_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${-suspension_rod_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
             </geometry>
