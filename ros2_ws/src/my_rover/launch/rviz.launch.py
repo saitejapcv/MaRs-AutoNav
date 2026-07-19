@@ -27,10 +27,13 @@ def generate_launch_description():
         output='screen'
     )
 
+    rviz_config_path = os.path.join(pkg_path, 'config', 'my_rover.rviz')
+
     # RViz2
     rviz = Node(
         package='rviz2',
         executable='rviz2',
+        arguments=['-d', rviz_config_path],
         output='screen'
     )
 
