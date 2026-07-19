@@ -211,13 +211,13 @@
     <joint name='wheel_steer_joint_1' type='revolute'>
         <parent link='wheel-base'/>
         <child link='wheel_steer'/>
-        <origin xyz='0 0 ${-wheel_base_length/3}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${-wheel_base_length}' rpy='0 0 0'/>
         <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
     </joint>
 
     <joint name='wheel_steer_joint_2' type='revolute'>
-        <parent link='wheel-base'/>
+        <parent link='wheel-base_2'/>
         <child link='wheel_steer_2'/>
         <origin xyz='0 0 ${-wheel_base_length/3}' rpy='0 0 0'/>
         <axis xyz='0 0 1'/>
@@ -225,7 +225,7 @@
     </joint>
 
     <joint name='wheel_steer_joint_3' type='revolute'>
-        <parent link='wheel-base'/>
+        <parent link='wheel-base_3'/>
         <child link='wheel_steer_3'/>
         <origin xyz='0 0 ${-wheel_base_length/3}' rpy='0 0 0'/>
         <axis xyz='0 0 1'/>
@@ -233,7 +233,7 @@
     </joint>
 
     <joint name='wheel_steer_joint_4' type='revolute'>
-        <parent link='wheel-base'/>
+        <parent link='wheel-base_4'/>
         <child link='wheel_steer_4'/>
         <origin xyz='0 0 ${-wheel_base_length/3}' rpy='0 0 0'/>
         <axis xyz='0 0 1'/>
