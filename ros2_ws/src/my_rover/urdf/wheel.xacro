@@ -219,7 +219,7 @@
     <joint name='wheel_steer_joint_2' type='revolute'>
         <parent link='wheel-base_2'/>
         <child link='wheel_steer_2'/>
-        <origin xyz='0 0 ${-wheel_base_length/3}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${-2*wheel_base_length/3 - wheel_steer_height/2}' rpy='0 0 0'/>
         <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
     </joint>
@@ -227,7 +227,7 @@
     <joint name='wheel_steer_joint_3' type='revolute'>
         <parent link='wheel-base_3'/>
         <child link='wheel_steer_3'/>
-        <origin xyz='0 0 ${-wheel_base_length/3}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${-2*wheel_base_length/3 - wheel_steer_height/2}' rpy='0 0 0'/>
         <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
     </joint>
@@ -235,9 +235,113 @@
     <joint name='wheel_steer_joint_4' type='revolute'>
         <parent link='wheel-base_4'/>
         <child link='wheel_steer_4'/>
-        <origin xyz='0 0 ${-wheel_base_length/3}' rpy='0 0 0'/>
+        <origin xyz='0 0 ${-2*wheel_base_length/3 - wheel_steer_height/2}' rpy='0 0 0'/>
         <axis xyz='0 0 1'/>
         <limit lower='-1.57' upper='1.57' effort='1000' velocity='1'/>
+    </joint>
+    
+    <link name='wheel_steer_to_wheel'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_width}" z="${wheel_steer_to_height}"/>
+        </inertial>
+    </link>
+
+    <link name='wheel_steer_to_wheel_2'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_width}" z="${wheel_steer_to_height}"/>
+        </inertial>
+    </link>
+
+    <link name='wheel_steer_to_wheel_3'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_width}" z="${wheel_steer_to_height}"/>
+        </inertial>
+    </link>
+
+    <link name='wheel_steer_to_wheel_4'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <mass value='1'/>
+            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_width}" z="${wheel_steer_to_height}"/>
+        </inertial>
+    </link>
+
+    <joint name='wheel_steer_to_wheel_joint_1' type='fixed'>
+        <parent link='wheel_steer'/>
+        <child link='wheel_steer_to_wheel'/>
+        <origin xyz='0.5 0.35 1' rpy='0 0 0'/>
+    </joint>
+
+    <joint name='wheel_steer_to_wheel_joint_2' type='fixed'>
+        <parent link='wheel_steer_2'/>
+        <child link='wheel_steer_to_wheel_2'/>
+        <origin xyz='0 0 0' rpy='0 0 0'/>
+    </joint>
+
+    <joint name='wheel_steer_to_wheel_joint_3' type='fixed'>
+        <parent link='wheel_steer_3'/>
+        <child link='wheel_steer_to_wheel_3'/>
+        <origin xyz='0 0 0' rpy='0 0 0'/>
+    </joint>
+
+    <joint name='wheel_steer_to_wheel_joint_4' type='fixed'>
+        <parent link='wheel_steer_4'/>
+        <child link='wheel_steer_to_wheel_4'/>
+        <origin xyz='0 0 0' rpy='0 0 0'/>
     </joint>
     
 </robot>
