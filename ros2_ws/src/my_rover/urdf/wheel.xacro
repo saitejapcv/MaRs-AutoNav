@@ -1,4 +1,120 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_rover">
 
+    <link name='wheel-base'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                <material name='black'>
+                    <color rgba='0.2 0.2 0.2 1.0'/>
+                </material>
+            </geometry>
+            <collision>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <geometry>
+                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <mass value='1'/>
+                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+            </inertial>
+        </visual>
+    </link>
+    
+    <link name='wheel-base_2'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                <material name='black'>
+                    <color rgba='0.2 0.2 0.2 1.0'/>
+                </material>
+            </geometry>
+            <collision>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <geometry>
+                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <mass value='1'/>
+                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+            </inertial>
+        </visual>
+    </link>
+
+    <link name='wheel-base_3'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                <material name='black'>
+                    <color rgba='0.2 0.2 0.2 1.0'/>
+                </material>
+            </geometry>
+            <collision>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <geometry>
+                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <mass value='1'/>
+                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+            </inertial>
+        </visual>
+    </link>
+
+    <link name='wheel-base_4'>
+        <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
+            <geometry>
+                <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                <material name='black'>
+                    <color rgba='0.2 0.2 0.2 1.0'/>
+                </material>
+            </geometry>
+            <collision>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <geometry>
+                    <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
+                </geometry>
+            </collision>
+            <inertial>
+                <origin xyz='0 0 0' rpy='0 0 0'/>
+                <mass value='1'/>
+                <xacro:cylinder_inertia m="1" r="${wheel_base_radius}" h="${wheel_base_length}"/>
+            </inertial>
+        </visual>
+    </link>
+
+    <joint name='wheel_base_joint' type='fixed'>
+        <parent link='suspension_rod'/>
+        <child link='wheel-base'/>
+        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+    </joint>
+
+    <joint name='wheel_base_2_joint' type='fixed'>
+        <parent link='suspension_rod_2'/>
+        <child link='wheel-base_2'/>
+        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+    </joint>
+
+    <joint name='wheel_base_3_joint' type='fixed'>
+        <parent link='suspension_rod_3'/>
+        <child link='wheel-base_3'/>
+        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+    </joint>
+
+    <joint name='wheel_base_4_joint' type='fixed'>
+        <parent link='suspension_rod_4'/>
+        <child link='wheel-base_4'/>
+        <origin xyz='${suspension_rod_length/2} 0 0' rpy='0 0 0'/>
+    </joint>
+
 </robot>
