@@ -7,8 +7,8 @@
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
-            <material name='black'>
-                <color rgba='0.2 0.2 0.2 1.0'/>
+            <material name='gray'>
+                <color rgba='0.5 0.5 0.5 1.0'/>
             </material>
         </visual>
         <collision>
@@ -30,8 +30,8 @@
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
-            <material name='black'>
-                <color rgba='0.2 0.2 0.2 1.0'/>
+            <material name='gray'>
+                <color rgba='0.5 0.5 0.5 1.0'/>
             </material>
         </visual>
         <collision>
@@ -53,8 +53,8 @@
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
-            <material name='black'>
-                <color rgba='0.2 0.2 0.2 1.0'/>
+            <material name='gray'>
+                <color rgba='0.5 0.5 0.5 1.0'/>
             </material>
         </visual>
         <collision>
@@ -76,8 +76,8 @@
             <geometry>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
-            <material name='black'>
-                <color rgba='0.2 0.2 0.2 1.0'/>
+            <material name='gray'>
+                <color rgba='0.5 0.5 0.5 1.0'/>
             </material>
         </visual>
         <collision>
