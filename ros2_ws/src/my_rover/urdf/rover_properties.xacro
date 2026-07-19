@@ -5,7 +5,7 @@
     <xacro:property name='chassis_length' value='1.25'/>
     <xacro:property name='chassis_width' value='1'/>
     <xacro:property name='chassis_height' value='0.5'/>
-    <xacro:property name='chassis_suspension_rod_length' value='0.05'/>
+    <xacro:property name='chassis_suspension_rod_length' value='0.1'/>
     <xacro:property name='chassis_suspension_rod_radius' value='0.02'/>
     <xacro:property name='suspension_rod_length' value='${sqrt((chassis_length/2)**2 + (chassis_height/2)**2)}'/>
     <xacro:property name='suspension_rod_radius' value='0.02'/>
