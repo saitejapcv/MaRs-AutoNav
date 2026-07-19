@@ -60,7 +60,7 @@
 
     <link name='suspension_rod'>
         <visual>
-            <origin xyz='0 0 ${-suspension_rod_length/2}' rpy='0 0 0'/>
+            <origin xyz='0 0 ${suspension_rod_length/2}' rpy='0 0 0'/>
             <geometry>
                 <cylinder radius='${suspension_rod_radius}' length='${suspension_rod_length}'/>
             </geometry>
@@ -141,7 +141,7 @@
     <joint name='suspension_rod_joint' type='fixed'>
         <parent link='chassis_suspension_rod'/>
         <child link='suspension_rod'/>
-        <origin xyz='0 0 0' rpy='0 ${2*pi/3} 0'/>
+        <origin xyz='0 0 0' rpy='${pi/3} ${pi/2} 0'/>
     </joint>
 
     <joint name='suspension_rod_2_joint' type='fixed'>
