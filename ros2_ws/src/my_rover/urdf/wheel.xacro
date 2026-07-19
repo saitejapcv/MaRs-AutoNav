@@ -244,19 +244,19 @@
         <visual>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </visual>
         <collision>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </collision>
         <inertial>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <mass value='1'/>
-            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_width}" z="${wheel_steer_to_height}"/>
+            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_wheel_width}" z="${wheel_steer_to_wheel_height}"/>
         </inertial>
     </link>
 
@@ -264,19 +264,19 @@
         <visual>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </visual>
         <collision>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </collision>
         <inertial>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <mass value='1'/>
-            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_width}" z="${wheel_steer_to_height}"/>
+            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_wheel_width}" z="${wheel_steer_to_wheel_height}"/>
         </inertial>
     </link>
 
@@ -284,19 +284,19 @@
         <visual>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </visual>
         <collision>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </collision>
         <inertial>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <mass value='1'/>
-            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_width}" z="${wheel_steer_to_height}"/>
+            <xacro:box_inertia m="1" x="${wheel_steer_to_wheel_length}" y="${wheel_steer_to_wheel_width}" z="${wheel_steer_to_wheel_height}"/>
         </inertial>
     </link>
 
@@ -304,13 +304,13 @@
         <visual>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </visual>
         <collision>
             <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_width} ${wheel_steer_to_height}'/>
+                <box size='${wheel_steer_to_wheel_length} ${wheel_steer_to_wheel_width} ${wheel_steer_to_wheel_height}'/>
             </geometry>
         </collision>
         <inertial>
