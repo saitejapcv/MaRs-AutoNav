@@ -358,8 +358,8 @@
 
     <link name='wheel'>
         <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
             <material name='gray'>
@@ -381,8 +381,8 @@
 
     <link name='wheel_2'>
         <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
             <material name='gray'>
@@ -404,8 +404,8 @@
 
     <link name='wheel_3'>
         <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
             <material name='gray'>
@@ -427,8 +427,8 @@
 
     <link name='wheel_4'>
         <visual>
+            <origin xyz='0 0 0' rpy='0 0 0'/>
             <geometry>
-                <origin xyz='0 0 0' rpy='0 0 0'/>
                 <cylinder radius='${wheel_base_radius}' length='${wheel_base_length}'/>
             </geometry>
             <material name='gray'>
@@ -449,28 +449,28 @@
     </link>
     
 
-    <joint name='wheel_joint' type='continous'>
+    <joint name='wheel_joint' type='continuous'>
         <parent link='wheel_steer_to_wheel'/>
         <child link='wheel'/>
         <origin xyz='0.2 0.4 0.8' rpy='0 1.5707 0'/>
         <axis xyz='1 0 0'/>
     </joint>
 
-    <joint name='wheel_joint_2' type='continous'>
+    <joint name='wheel_joint_2' type='continuous'>
         <parent link='wheel_steer_to_wheel_2'/>
         <child link='wheel_2'/>
         <origin xyz='0 0 0' rpy='0 1.5707 0'/>
         <axis xyz='1 0 0'/>
     </joint>
 
-    <joint name='wheel_joint_3' type='continous'>
+    <joint name='wheel_joint_3' type='continuous'>
         <parent link='wheel_steer_to_wheel_3'/>
         <child link='wheel_3'/>
         <origin xyz='0 0 0' rpy='0 1.5707 0'/>
         <axis xyz='1 0 0'/>
     </joint>
 
-    <joint name='wheel_joint_4' type='continous'>
+    <joint name='wheel_joint_4' type='continuous'>
         <parent link='wheel_steer_to_wheel_4'/>
         <child link='wheel_4'/>
         <origin xyz='0 0 0' rpy='0 1.5707 0'/>
