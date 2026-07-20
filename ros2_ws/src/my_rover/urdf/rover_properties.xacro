@@ -17,7 +17,7 @@
     <xacro:property name='wheel_steer_to_wheel_length' value='0.04'/>
     <xacro:property name='wheel_steer_to_wheel_width' value='0.07'/>
     <xacro:property name='wheel_steer_to_wheel_height' value='0.15'/>
-    <xacro:property name='wheel_lenght' value='0.65'/>
+    <xacro:property name='wheel_length' value='0.065'/>
     <xacro:property name='wheel_radius' value='${wheel_steer_to_wheel_height*0.9}'/>
 
 </robot>
