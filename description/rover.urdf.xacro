@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ares_nova_v2">
+
+  <!-- INCLUDES -->
+  <xacro:include filename="rover_properties.xacro"/>
+  <xacro:include filename="chassis.xacro"/>
+  <xacro:include filename="suspension.xacro"/>
+  <xacro:include filename="wheel.xacro"/>
+
+  <!-- DEPLOY SUSPENSION & WHEELS -->
+  <xacro:suspension_arm side="left"  y_reflect="1.0"/>
+  <xacro:suspension_arm side="right" y_reflect="-1.0"/>
+
+  <xacro:swerve_wheel prefix="front_left"  parent_arm="left_suspension_link"  x_reflect="1.0"  y_reflect="1.0"/>
+  <xacro:swerve_wheel prefix="rear_left"   parent_arm="left_suspension_link"  x_reflect="-1.0" y_reflect="1.0"/>
+  <xacro:swerve_wheel prefix="front_right" parent_arm="right_suspension_link" x_reflect="1.0"  y_reflect="-1.0"/>
+  <xacro:swerve_wheel prefix="rear_right"  parent_arm="right_suspension_link" x_reflect="-1.0" y_reflect="-1.0"/>
+
+  <!-- ROS 2 CONTROL HARDWARE INTERFACES -->
+  <ros2_control name="IgnitionSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <joint name="front_left_steering_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="front_right_steering_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="rear_left_steering_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="rear_right_steering_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+
+    <joint name="front_left_drive_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="front_right_drive_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="rear_left_drive_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="rear_right_drive_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find ares_nova_v2)/config/ros2_controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+  <!-- GAZEBO MATERIAL OVERRIDES -->
+  <gazebo reference="top_deck_link">
+    <material>
+      <ambient>0.8 0.65 0.1 1.0</ambient>
+      <diffuse>0.8 0.65 0.1 1.0</diffuse>
+      <specular>0.5 0.5 0.5 1.0</specular>
+    </material>
+  </gazebo>
+
+  <!-- GAZEBO SENSORS -->
+  <gazebo reference="camera_link">
+    <sensor type="camera" name="rover_camera">
+      <always_on>1</always_on>
+      <topic>/camera/image_raw</topic>
+      <update_rate>30.0</update_rate>
+      <visualize>true</visualize>
+      <camera name="head">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image><width>800</width><height>800</height><format>R8G8B8</format></image>
+        <clip><near>0.02</near><far>300.0</far></clip>
+      </camera>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="imu_link">
+    <sensor name="rover_imu" type="imu">
+      <always_on>1</always_on>
+      <update_rate>50.0</update_rate>
+      <ignition_frame_id>imu_link</ignition_frame_id>
+      <gz_frame_id>imu_link</gz_frame_id>
+      <plugin filename="libignition-gazebo-imu-system.so" name="ignition::gazebo::systems::Imu"/>
+    </sensor>
+  </gazebo>
+</robot>

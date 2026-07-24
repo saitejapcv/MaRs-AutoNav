@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="suspension_arm" params="side y_reflect">
+    <link name="${side}_suspension_link">
+      <visual>
+        <geometry><box size="${suspension_length} ${suspension_width} ${suspension_height}"/></geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <material name="black"/>
+      </visual>
+      <visual>
+        <geometry><sphere radius="0.035"/></geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <material name="accent"/>
+      </visual>
+      <visual>
+        <geometry><cylinder radius="0.015" length="0.08"/></geometry>
+        <origin xyz="0.0 ${-0.04 * y_reflect} 0.0" rpy="1.5708 0.0 0.0"/>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <geometry><box size="${suspension_length} ${suspension_width} ${suspension_height}"/></geometry>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      </collision>
+      <inertial>
+        <mass value="${suspension_mass}"/>
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.05" iyz="0.0" izz="0.05"/>
+      </inertial>
+    </link>
+    
+    <joint name="${side}_suspension_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="${side}_suspension_link"/>
+      <origin xyz="0.0 ${susp_dy * y_reflect} 0.0" rpy="0.0 0.0 0.0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>
