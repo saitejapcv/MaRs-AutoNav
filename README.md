@@ -16,4 +16,4 @@ step 5:
 ## URDF preview
 You shall preview the URDF using the preview.urdf file, in your VS CODE using URDF extension by smilerobotics
 Here is a screenshot:
-![URDF PREVIEW](src/ares_nova_v2/screenshots/Screenshot from 2026-07-24 11-05-48.png)
+![URDF PREVIEW](/home/yashvant/ros2_ws/src/ares_nova_v2/screenshots/urdf_preview.png)
