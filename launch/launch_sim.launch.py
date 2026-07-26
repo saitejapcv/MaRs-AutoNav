@@ -8,7 +8,7 @@ from launch_ros.actions import Node
 import xacro
 
 def generate_launch_description():
-    package_name = 'ares_nova_v2'
+    package_name = 'autonavtest'
     pkg_path = os.path.join(get_package_share_directory(package_name))
     
     # 1. Process the URDF XACRO
