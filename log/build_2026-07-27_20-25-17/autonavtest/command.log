@@ -1,0 +1,6 @@
+Invoking command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/taper/autonav/MaRs-AutoNav -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/taper/autonav/MaRs-AutoNav/install/autonavtest
+Invoked command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/taper/autonav/MaRs-AutoNav -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/taper/autonav/MaRs-AutoNav/install/autonavtest
+Invoking command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/taper/autonav/MaRs-AutoNav/build/autonavtest -- -j12 -l12
+Invoked command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/taper/autonav/MaRs-AutoNav/build/autonavtest -- -j12 -l12
+Invoking command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/taper/autonav/MaRs-AutoNav/build/autonavtest
+Invoked command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/taper/autonav/MaRs-AutoNav/build/autonavtest

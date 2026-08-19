@@ -1,0 +1,52 @@
+[0.011s] Invoking command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/taper/autonav/MaRs-AutoNav -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/taper/autonav/MaRs-AutoNav/install/autonavtest
+[0.149s] -- The C compiler identification is GNU 11.4.0
+[0.247s] -- The CXX compiler identification is GNU 11.4.0
+[0.258s] -- Detecting C compiler ABI info
+[0.347s] -- Detecting C compiler ABI info - done
+[0.354s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.354s] -- Detecting C compile features
+[0.355s] -- Detecting C compile features - done
+[0.359s] -- Detecting CXX compiler ABI info
+[0.455s] -- Detecting CXX compiler ABI info - done
+[0.462s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.462s] -- Detecting CXX compile features
+[0.462s] -- Detecting CXX compile features - done
+[0.841s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[1.142s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[1.609s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[1.996s] -- Configuring done
+[1.999s] -- Generating done
+[2.001s] -- Build files have been written to: /home/taper/autonav/MaRs-AutoNav/build/autonavtest
+[2.005s] Invoked command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/taper/autonav/MaRs-AutoNav -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/taper/autonav/MaRs-AutoNav/install/autonavtest
+[2.007s] Invoking command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/taper/autonav/MaRs-AutoNav/build/autonavtest -- -j12 -l12
+[2.051s] Invoked command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/taper/autonav/MaRs-AutoNav/build/autonavtest -- -j12 -l12
+[2.061s] Invoking command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/taper/autonav/MaRs-AutoNav/build/autonavtest
+[2.068s] -- Install configuration: ""
+[2.068s] -- Execute custom install script
+[2.069s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/launch/launch_sim.launch.py
+[2.079s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/description/chassis.xacro
+[2.088s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/description/preview.urdf
+[2.098s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/description/rover.urdf.xacro
+[2.108s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/description/rover_properties.xacro
+[2.119s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/description/suspension.xacro
+[2.129s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/description/wheel.xacro
+[2.139s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/worlds/base_cone.dae
+[2.148s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/worlds/world.sdf
+[2.158s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/config/ros2_controllers.yaml
+[2.167s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/lib/autonavtest/swerve_controller.py
+[2.177s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/ament_index/resource_index/package_run_dependencies/autonavtest
+[2.188s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/ament_index/resource_index/parent_prefix_path/autonavtest
+[2.198s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/environment/ament_prefix_path.sh
+[2.208s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/environment/ament_prefix_path.dsv
+[2.218s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/environment/path.sh
+[2.230s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/environment/path.dsv
+[2.239s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/local_setup.bash
+[2.249s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/local_setup.sh
+[2.259s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/local_setup.zsh
+[2.270s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/local_setup.dsv
+[2.279s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/package.dsv
+[2.289s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/ament_index/resource_index/packages/autonavtest
+[2.299s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/cmake/autonavtestConfig.cmake
+[2.309s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/cmake/autonavtestConfig-version.cmake
+[2.320s] -- Symlinking: /home/taper/autonav/MaRs-AutoNav/install/autonavtest/share/autonavtest/package.xml
+[2.332s] Invoked command in '/home/taper/autonav/MaRs-AutoNav/build/autonavtest' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/taper/autonav/MaRs-AutoNav/build/autonavtest

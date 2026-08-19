@@ -1,6 +1,14 @@
 <?xml version="1.0" ?>
 <sdf version="1.8">
     <world name="test_world">
+        <!-- IIITDM Kancheepuram Campus -->
+        <spherical_coordinates>
+        <surface_model>EARTH_WGS84</surface_model>
+        <latitude_deg>12.8378</latitude_deg>
+        <longitude_deg>80.1371</longitude_deg>
+        <elevation>35.0</elevation>
+        <heading_deg>0</heading_deg>
+        </spherical_coordinates>
             <!-- 1. THE CORE GAZEBO PLUGINS (These make the world actually render and work) -->
         <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
         <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
