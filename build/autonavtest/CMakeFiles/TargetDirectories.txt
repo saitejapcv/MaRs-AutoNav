@@ -1,9 +1,0 @@
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/uninstall.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/autonavtest_uninstall.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/test.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/edit_cache.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/rebuild_cache.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/list_install_components.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/install.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/install/local.dir
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/CMakeFiles/install/strip.dir

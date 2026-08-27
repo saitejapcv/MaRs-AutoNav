@@ -1,1 +1,0 @@
-/home/taper/autonav/MaRs-AutoNav/build/autonavtest/ament_cmake_core/autonavtestConfig.cmake
