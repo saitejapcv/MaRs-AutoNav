@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="swerve_wheel" params="prefix parent_arm x_reflect y_reflect">
+    <link name="${prefix}_steering_link">
+      <visual>
+        <geometry><box size="${steer_length} ${steer_width} ${steer_height}"/></geometry>
+        <material name="black"/>
+      </visual>
+      <inertial>
+        <mass value="${steer_mass}"/>
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_steering_joint" type="revolute">
+      <parent link="${parent_arm}"/>
+      <child link="${prefix}_steering_link"/>
+      <!-- Removed the gap here so the steering motor sits perfectly flush with the suspension arm -->
+      <origin xyz="${(suspension_length / 2) * x_reflect + steer_xoffset} 0.0 ${steer_zoffset}" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1.57" upper="1.57" effort="50.0" velocity="2.0"/>
+    </joint>
+
+    <link name="${prefix}_wheel_link">
+      <visual>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
+        <material name="black"/>
+      </visual>
+      <visual>
+        <geometry><cylinder radius="${wheel_radius * 0.6}" length="${wheel_length + 0.005}"/></geometry>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_drive_joint" type="continuous">
+      <parent link="${prefix}_steering_link"/>
+      <child link="${prefix}_wheel_link"/>
+      <!-- Added the 0.15m gap HERE, below the motor block, pushing the wheel down (-0.18 - 0.15 = -0.33) -->
+      <origin xyz="0.0 0.0 -0.33" rpy="-1.5708 0.0 0.0"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+  </xacro:macro>
+</robot>
