@@ -74,7 +74,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -93,7 +93,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -112,7 +112,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -131,7 +131,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -150,7 +150,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>

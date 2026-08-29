@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction, RegisterEventHandler
+from launch.actions import IncludeLaunchDescription, TimerAction, RegisterEventHandler, AppendEnvironmentVariable
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -10,6 +10,21 @@ import xacro
 def generate_launch_description():
     package_name = 'autonavtest'
     pkg_path = os.path.join(get_package_share_directory(package_name))
+
+    # Set Gazebo / Ignition Resource Paths
+    resource_paths = [
+        os.path.join(pkg_path, 'worlds'),
+        pkg_path,
+        os.path.dirname(pkg_path)
+    ]
+    ign_resource_path = AppendEnvironmentVariable(
+        name='IGN_GAZEBO_RESOURCE_PATH',
+        value=':'.join(resource_paths)
+    )
+    gz_resource_path = AppendEnvironmentVariable(
+        name='GZ_SIM_RESOURCE_PATH',
+        value=':'.join(resource_paths)
+    )
     
     # 1. Process the URDF XACRO
     xacro_file = os.path.join(pkg_path, 'description', 'rover.urdf.xacro')
@@ -109,6 +124,8 @@ def generate_launch_description():
 
     # 9. Launch Everything!
     return LaunchDescription([
+        ign_resource_path,
+        gz_resource_path,
         node_robot_state_publisher,
         gazebo,
         spawn_entity,
