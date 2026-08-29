@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass
 import rclpy
 from rclpy.node import Node
 import math
-import time
 
 from geometry_msgs.msg import Twist, TransformStamped
 from std_msgs.msg import Float64MultiArray
@@ -47,7 +45,7 @@ class AckermanController(Node):
         self.theta = 0.0
         self.last_time = self.get_clock().now()
 
-        self.get_logger().info("Swerve Kinematics Controller Online!")
+        self.get_logger().info("Ackerman Kinematics Controller Online!")
 
     def cmd_vel_callback(self, msg):
         """ Inverse Kinematics: cmd_vel -> Wheel Angles & Speeds """
@@ -83,21 +81,14 @@ class AckermanController(Node):
             speed = linear_speed/self.wheel_radius
             angle = math.atan2(wheel_vy, wheel_vx)
             
-            # preserver direction sign when reversing
-            if vx < 0 and abs(wheel_vx) > 1e-4:
-                # Keep the steering between -90 and +90 degrees. 
-                # If it tries to go past 90, flip the wheel straight and reverse the motor.
-                if angle > (math.pi / 2.0):
-                    angle -= math.pi
-                    speed *= -1.0
-                elif angle < (-math.pi / 2.0):
-                    angle += math.pi
-                    speed *= -1.0
-            elif abs(vx) < 1e-4:
-                # point turn speed direction
-                if wheel_vx < 0 or (abs(wheel_vx) < 1e-4 and wheel_vy < 0):
-                    angle = math.atan2(-wheel_vy, -wheel_vx)
-                    speed *= -1.0
+            # Angle optimization: keep steering angle within [-90, +90] degrees.
+            # If the vector points backwards, flip the wheel 180 deg and reverse motor direction.
+            if angle > (math.pi / 2.0):
+                angle -= math.pi
+                speed *= -1.0
+            elif angle < -(math.pi / 2.0):
+                angle += math.pi
+                speed *= -1.0
                 
             steer_cmds.append(angle)
             drive_cmds.append(speed)
