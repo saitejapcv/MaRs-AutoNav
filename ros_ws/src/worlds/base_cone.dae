@@ -13,26 +13,16 @@
   <library_effects>
     <effect id="_1_-_Default">
       <profile_COMMON>
-        <newparam sid="Construction_Cone_Diffuse_tga-surface">
-          <surface type="2D">
-            <init_from>Construction_Cone_Diffuse_tga</init_from>
-          </surface>
-        </newparam>
-        <newparam sid="Construction_Cone_Diffuse_tga-sampler">
-          <sampler2D>
-            <source>Construction_Cone_Diffuse_tga-surface</source>
-          </sampler2D>
-        </newparam>
         <technique sid="common">
           <blinn>
             <emission>
-              <color>0.2 0.2 0.2 1</color>
+              <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>0.5882353 0.5882353 0.5882353 1</color>
+              <color>0.8 0.8 0.8 1</color>
             </ambient>
             <diffuse>
-              <texture texture="Construction_Cone_Diffuse_tga-sampler" texcoord="CHANNEL1"/>
+              <color>0.8 0.8 0.8 1</color>
             </diffuse>
             <specular>
               <color>0.9 0.9 0.9 1</color>
@@ -134,11 +124,7 @@
       </technique_common>
     </light>
   </library_lights>
-  <library_images>
-    <image id="Construction_Cone_Diffuse_tga">
-      <init_from>../materials/textures/Construction_Cone_Diffuse.png</init_from>
-    </image>
-  </library_images>
+  <library_images/>
   <library_visual_scenes>
     <visual_scene id="MaxScene">
       <node name="EnvironmentAmbientLight">
