@@ -76,20 +76,22 @@ def generate_launch_description():
     )
 
     # 6. ros2_control Spawners
+    controllers_file = os.path.join(pkg_path, 'config', 'ros2_controllers.yaml')
+
     spawn_broadcaster = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager', '--param-file', controllers_file],
     )
     spawn_drive = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['drive_velocity_controller', '--controller-manager', '/controller_manager'],
+        arguments=['drive_velocity_controller', '--controller-manager', '/controller_manager', '--param-file', controllers_file],
     )
     spawn_steer = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['steering_position_controller', '--controller-manager', '/controller_manager'],
+        arguments=['steering_position_controller', '--controller-manager', '/controller_manager', '--param-file', controllers_file],
     )
 
     # 7. Our Custom Swerve Brain
