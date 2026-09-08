@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>mars_rover_ackermann</name>
+  <version>0.0.1</version>
+  <description>Four-wheel Mars rover Ackermann steering simulation for ROS 2 Humble and Gazebo Classic.</description>
+
+  <maintainer email="student@example.com">Student</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>xacro</depend>
+  <depend>ros2_control</depend>
+  <depend>controller_manager</depend>
+  <depend>joint_state_broadcaster</depend>
+  <depend>ackermann_steering_controller</depend>
+  <depend>gazebo_ros</depend>
+  <depend>gazebo_ros2_control</depend>
+  <depend>rviz2</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
