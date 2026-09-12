@@ -27,6 +27,27 @@
   <!-- PRESERVED SPACING PADDING -->
   <xacro:property name="susp_dy" value="${(base_width / 2) + 0.08}"/>
 
+  <!-- LIDAR MAST PARAMETERS -->
+  <xacro:property name="lidar_mast_radius" value="0.015" /> 
+  <xacro:property name="lidar_mast_height" value="0.325" /> <!-- Halved height -->
+  <xacro:property name="lidar_mast_x_offset" value="-0.15" /> 
+  
+  <!-- CAMERA EXTENSION BEAM PARAMETERS -->
+  <xacro:property name="camera_beam_y_offset" value="-0.15" /> 
+  
+  <!-- Start the beam 10cm inside the chassis so it sits on the deck -->
+  <xacro:property name="camera_beam_x_start" value="${base_length/2 - 0.1}" /> 
+  
+  <!-- Mathematically flush with the top of the gold deck -->
+  <xacro:property name="camera_beam_z_offset" value="${base_height/2 + 0.025}" /> 
+  <xacro:property name="camera_beam_length" value="0.25" /> 
+  <xacro:property name="camera_pitch" value="0.26" /> <!-- Tilted downward ~15 degrees -->
+
+  <!-- GPS MODULE PARAMETERS -->
+  <xacro:property name="gps_x_offset" value="-0.25" /> <!-- Rear edge -->
+  <xacro:property name="gps_y_offset" value="0.25" />  <!-- Left edge -->
+  <xacro:property name="gps_z_offset" value="${base_height/2 + 0.015}" /> <!-- On the gold deck -->
+  
   <!-- MATERIALS -->
   <material name="black"><color rgba="0.1 0.1 0.1 1"/></material>
   <material name="white"><color rgba="0.95 0.95 0.95 1"/></material>
