@@ -84,6 +84,26 @@
       <update_rate>10.0</update_rate>
       <topic>/gps/fix</topic>
       <gz_frame_id>gps_link</gz_frame_id>
+      <plugin filename="libignition-gazebo-navsat-system.so" name="ignition::gazebo::systems::NavSat"/>
+      
+     
+      <navsat>
+        <position_sensing>
+          <horizontal>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>0.01</stddev>
+            </noise>
+          </horizontal>
+          <vertical>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>0.01</stddev>
+            </noise>
+          </vertical>
+        </position_sensing>
+      </navsat>
+
     </sensor>
   </gazebo>
   
