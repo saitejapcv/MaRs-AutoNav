@@ -1,5 +1,3 @@
-# Tharanesh - Branch
-
 ## How to use code
 Step 1:
     cd to your workspace
