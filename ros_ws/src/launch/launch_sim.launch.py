@@ -107,6 +107,20 @@ def generate_launch_description():
         )
     )
 
+    ekf_config_path = os.path.join(
+        get_package_share_directory(package_name),
+        'config',
+        'ekf.yaml'
+    )
+
+    start_ekf_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[ekf_config_path, {'use_sim_time': True}]
+    )
+
     # 9. Launch Everything!
     return LaunchDescription([
         node_robot_state_publisher,
@@ -116,5 +130,6 @@ def generate_launch_description():
         TimerAction(period=3.0, actions=[spawn_broadcaster]),
         delay_drive_spawner,
         delay_steer_spawner,
-        delay_swerve_brain
+        delay_swerve_brain,
+        start_ekf_node
     ])

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.8">
-    <world name="test_world">
+    <world name="my_world">
         <!-- IIITDM Kancheepuram Campus -->
         <spherical_coordinates>
         <surface_model>EARTH_WGS84</surface_model>
@@ -74,7 +74,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -93,7 +93,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -112,7 +112,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -131,7 +131,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
@@ -150,7 +150,7 @@
                 <visual name="visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/taper/ros2_ws/src/task3-5/robotsim/worlds/base_cone.dae</uri>
+                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
                             <scale>10.0 10.0 10.0</scale>
                         </mesh>
                     </geometry>
