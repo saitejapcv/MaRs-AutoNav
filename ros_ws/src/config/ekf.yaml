@@ -1,0 +1,28 @@
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    two_d_mode: true
+    publish_tf: true
+    
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom
+
+    # 1. Raw Wheel Odometry (from swerve_controller.py)
+    odom0: /odom
+    # We only trust the linear X and Y velocities from the wheels.
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  false,
+                   false, false, false,
+                   false, false, false]
+                   
+    # 2. IMU Sensor (from the Ignition plugin)
+    imu0: /imu/data
+    # We trust the yaw (orientation), yaw velocity, and X/Y linear accelerations from the IMU.
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  true,  true,  false]
