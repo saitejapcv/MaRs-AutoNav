@@ -50,6 +50,7 @@ def generate_launch_description():
             '/camera/image_raw@sensor_msgs/msg/Image@ignition.msgs.Image',
             '/imu/data@sensor_msgs/msg/Imu@ignition.msgs.IMU',
             '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
+            '/gps/fix@sensor_msgs/msg/NavSatFix[ignition.msgs.NavSat',
             '/world/my_world/model/ares_nova/joint_state@sensor_msgs/msg/JointState[ignition.msgs.Model',
             '/depth_camera/image_raw/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked'
         ],
@@ -113,12 +114,37 @@ def generate_launch_description():
         'ekf.yaml'
     )
 
-    start_ekf_node = Node(
+    ekf_local = Node(
         package='robot_localization',
         executable='ekf_node',
-        name='ekf_filter_node',
+        name='ekf_local',
         output='screen',
-        parameters=[ekf_config_path, {'use_sim_time': True}]
+        parameters=[ekf_config_path, {'use_sim_time': True}],
+        remappings=[('odometry/filtered', 'odometry/local')]
+    )
+
+    ekf_global = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_global',
+        output='screen',
+        parameters=[ekf_config_path, {'use_sim_time': True}],
+        remappings=[('odometry/filtered', 'odometry/global')]
+    )
+
+    navsat_node = Node(
+        package='robot_localization',
+        executable='navsat_transform_node',
+        name='navsat_transform',
+        output='screen',
+        parameters=[ekf_config_path, {'use_sim_time': True}],
+        remappings=[
+            ('imu', 'imu/data'),
+            ('gps/fix', 'gps/fix'),
+            ('gps/filtered', 'gps/filtered'),
+            ('odometry/gps', 'odometry/gps'),
+            ('odometry/filtered', 'odometry/global')
+        ]
     )
 
     # 9. Launch Everything!
@@ -131,5 +157,7 @@ def generate_launch_description():
         delay_drive_spawner,
         delay_steer_spawner,
         delay_swerve_brain,
-        start_ekf_node
+        ekf_local,
+        ekf_global,
+        navsat_node
     ])
