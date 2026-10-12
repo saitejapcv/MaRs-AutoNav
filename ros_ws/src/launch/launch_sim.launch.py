@@ -37,7 +37,9 @@ def generate_launch_description():
     spawn_entity = Node(
         package='ros_gz_sim',
         executable='create',
-        arguments=['-topic', 'robot_description', '-name', 'ares_nova'],
+        arguments=['-topic', 'robot_description', '-name', 'ares_nova', '-x', '0.0',
+            '-y', '0.0',
+            '-z', '1.5'],
         output='screen'
     )
     
@@ -50,9 +52,9 @@ def generate_launch_description():
             '/camera/image_raw@sensor_msgs/msg/Image@ignition.msgs.Image',
             '/imu/data@sensor_msgs/msg/Imu@ignition.msgs.IMU',
             '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-            '/gps/fix@sensor_msgs/msg/NavSatFix[ignition.msgs.NavSat',
             '/world/my_world/model/ares_nova/joint_state@sensor_msgs/msg/JointState[ignition.msgs.Model',
-            '/depth_camera/image_raw/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked'
+            '/depth_camera/image_raw/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked',
+            '/gps/fix@sensor_msgs/msg/NavSatFix@ignition.msgs.NavSat'
         ],
         remappings=[
             ('/world/my_world/model/ares_nova/joint_state', '/joint_states')
@@ -114,36 +116,33 @@ def generate_launch_description():
         'ekf.yaml'
     )
 
-    ekf_local = Node(
+    start_ekf_node = Node(
         package='robot_localization',
         executable='ekf_node',
-        name='ekf_local',
+        name='ekf_filter_node',
         output='screen',
-        parameters=[ekf_config_path, {'use_sim_time': True}],
-        remappings=[('odometry/filtered', 'odometry/local')]
+        parameters=[ekf_config_path, {'use_sim_time': True}]
     )
 
-    ekf_global = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_global',
-        output='screen',
-        parameters=[ekf_config_path, {'use_sim_time': True}],
-        remappings=[('odometry/filtered', 'odometry/global')]
-    )
-
-    navsat_node = Node(
+    navsat_transform = Node(
         package='robot_localization',
         executable='navsat_transform_node',
-        name='navsat_transform',
+        name='navsat_transform_node',
         output='screen',
-        parameters=[ekf_config_path, {'use_sim_time': True}],
+        parameters=[{
+            'use_sim_time': True,
+            'magnetic_declination_radians': 0.0,
+            'yaw_offset': 0.0,
+            'zero_altitude': True,
+            'publish_filtered_gps': True,
+            'base_link_frame': 'base_footprint',
+            'use_odometry_yaw': True,             # <--- FIX 1: Bypasses Gazebo IMU bugs
+            'transform_timeout': 0.5              # <--- FIX 2: Allows TF tree time to sync
+        }],
         remappings=[
-            ('imu', 'imu/data'),
-            ('gps/fix', 'gps/fix'),
-            ('gps/filtered', 'gps/filtered'),
-            ('odometry/gps', 'odometry/gps'),
-            ('odometry/filtered', 'odometry/global')
+            ('imu', '/imu/data'),
+            ('gps/fix', '/gps/fix'),
+            ('odometry/filtered', '/odometry/filtered')
         ]
     )
 
@@ -157,7 +156,6 @@ def generate_launch_description():
         delay_drive_spawner,
         delay_steer_spawner,
         delay_swerve_brain,
-        ekf_local,
-        ekf_global,
-        navsat_node
+        start_ekf_node,
+        TimerAction(period=5.0, actions=[navsat_transform])
     ])

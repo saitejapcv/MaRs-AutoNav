@@ -44,7 +44,7 @@ class SwerveController(Node):
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0
-        self.last_time = self.get_clock().now()
+        self.last_time = None
 
         self.get_logger().info("Swerve Kinematics Controller Online!")
 
@@ -94,6 +94,9 @@ class SwerveController(Node):
     def joint_state_callback(self, msg):
         """ Forward Kinematics: Joint States -> Odometry Pose """
         current_time = self.get_clock().now()
+        if self.last_time is None:
+            self.last_time = current_time
+            return
         dt = (current_time - self.last_time).nanoseconds / 1e9
         self.last_time = current_time
         
@@ -102,10 +105,15 @@ class SwerveController(Node):
         try:
             # Extract current speeds and angles from the encoders
             # Note: You may need to verify the exact index mapping based on your Gazebo output
-            v_fl = msg.velocity[msg.name.index('front_left_drive_joint')] * self.wheel_radius
-            v_fr = msg.velocity[msg.name.index('front_right_drive_joint')] * self.wheel_radius
-            v_rl = msg.velocity[msg.name.index('rear_left_drive_joint')] * self.wheel_radius
-            v_rr = msg.velocity[msg.name.index('rear_right_drive_joint')] * self.wheel_radius
+            # Helper function to kill physics engine micro-jitter
+            def deadband(val, threshold=0.05):
+                return val if abs(val) > threshold else 0.0
+
+            # Extract speeds and apply the deadband BEFORE multiplying by radius
+            v_fl = deadband(msg.velocity[msg.name.index('front_left_drive_joint')]) * self.wheel_radius
+            v_fr = deadband(msg.velocity[msg.name.index('front_right_drive_joint')]) * self.wheel_radius
+            v_rl = deadband(msg.velocity[msg.name.index('rear_left_drive_joint')]) * self.wheel_radius
+            v_rr = deadband(msg.velocity[msg.name.index('rear_right_drive_joint')]) * self.wheel_radius
             
             a_fl = msg.position[msg.name.index('front_left_steering_joint')]
             a_fr = msg.position[msg.name.index('front_right_steering_joint')]
