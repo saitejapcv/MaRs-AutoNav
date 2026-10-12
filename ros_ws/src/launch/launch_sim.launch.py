@@ -146,6 +146,29 @@ def generate_launch_description():
         ]
     )
 
+    rtabmap_node = Node(
+    package='rtabmap_slam',
+    executable='rtabmap',
+    name='rtabmap',
+    output='screen',
+    parameters=[{
+        'use_sim_time': True,
+        'frame_id': 'base_footprint',        # Anchors the map to the rover's base
+        'subscribe_depth': False,
+        'subscribe_rgb': False,
+        'subscribe_scan_cloud': True,        # We are feeding it the dense 3D point cloud
+        'approx_sync': True,
+        'Grid/From3D': 'true',               # Squashes the 3D map into a 2D floorplan for Nav2
+        'Grid/MaxObstacleHeight': '2.0',     # Ignores ceilings
+        'Grid/RayTracing': 'true'            # Clears free space as the camera moves
+    }],
+    remappings=[
+        ('odom', '/odometry/filtered'),
+        ('scan_cloud', '/depth_camera/image_raw/points')
+    ],
+    arguments=['-d'] # Deletes the old map database on every fresh boot
+)
+
     # 9. Launch Everything!
     return LaunchDescription([
         node_robot_state_publisher,
@@ -157,5 +180,6 @@ def generate_launch_description():
         delay_steer_spawner,
         delay_swerve_brain,
         start_ekf_node,
-        TimerAction(period=5.0, actions=[navsat_transform])
+        TimerAction(period=5.0, actions=[navsat_transform]),
+        TimerAction(period=7.0, actions=[rtabmap_node])
     ])
