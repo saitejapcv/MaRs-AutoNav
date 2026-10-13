@@ -1,30 +1,32 @@
 <?xml version="1.0" ?>
 <sdf version="1.8">
     <world name="my_world">
-        <!-- IIITDM Kancheepuram Campus -->
+        <!-- 1. GPS Coordinates -->
         <spherical_coordinates>
-        <surface_model>EARTH_WGS84</surface_model>
-        <latitude_deg>12.8378</latitude_deg>
-        <longitude_deg>80.1371</longitude_deg>
-        <elevation>35.0</elevation>
-        <heading_deg>0</heading_deg>
+            <surface_model>EARTH_WGS84</surface_model>
+            <latitude_deg>12.8378</latitude_deg>
+            <longitude_deg>80.1371</longitude_deg>
+            <elevation>35.0</elevation>
+            <heading_deg>0</heading_deg>
         </spherical_coordinates>
-            <!-- 1. THE CORE GAZEBO PLUGINS (These make the world actually render and work) -->
-        <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
-        <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
-        <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
-        
-        <!-- 2. THE SENSOR PLUGIN (This makes the LiDAR work) -->
-        <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-            <render_engine>ogre2</render_engine>
-        </plugin>
 
+        <!-- 2. Core Gazebo Plugins -->
+        <plugin filename="libignition-gazebo-physics-system.so" name="ignition::gazebo::systems::Physics"/>
+        <plugin filename="libignition-gazebo-scene-broadcaster-system.so" name="ignition::gazebo::systems::SceneBroadcaster"/>
+        <plugin filename="libignition-gazebo-user-commands-system.so" name="ignition::gazebo::systems::UserCommands"/>
+        <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
+        <render_engine>ogre2</render_engine>
+        </plugin>
+        <plugin filename="libignition-gazebo-imu-system.so" name="ignition::gazebo::systems::Imu"/>
+        <plugin filename="libignition-gazebo-navsat-system.so" name="ignition::gazebo::systems::NavSat"/>
+
+        <!-- 3. Physics Settings -->
         <physics name="1ms" type="ignored">
             <max_step_size>0.001</max_step_size>
             <real_time_factor>1.0</real_time_factor>
         </physics>
 
-        <!-- 3. ENVIRONMENT -->
+        <!-- 4. Environment Lighting -->
         <light type="directional" name="sun">
             <cast_shadows>true</cast_shadows>
             <pose>0 0 10 0 0 0</pose>
@@ -39,126 +41,30 @@
             <direction>-0.5 0.1 -0.9</direction>
         </light>
 
-        <model name="ground_plane">
+        <!-- 5. RAW STL TERRAIN -->
+        <model name="terrain_1">
             <static>true</static>
             <link name="link">
                 <collision name="collision">
                     <geometry>
-                        <plane>
-                            <normal>0 0 1</normal>
-                            <size>100 100</size>
-                        </plane>
+                        <mesh>
+                            <uri>map2.stl</uri>
+                            <scale>2.0 2.0 2.0</scale>
+                        </mesh>
                     </geometry>
                 </collision>
                 <visual name="visual">
                     <geometry>
-                        <plane>
-                            <normal>0 0 1</normal>
-                            <size>100 100</size>
-                        </plane>
+                        <mesh>
+                            <uri>map2.stl</uri>
+                            <scale>2.0 2.0 2.0</scale>
+                        </mesh>
                     </geometry>
                     <material>
-                        <ambient>0.8 0.8 0.8 1</ambient>
-                        <diffuse>0.8 0.8 0.8 1</diffuse>
-                        <specular>0.8 0.8 0.8 1</specular>
+                        <ambient>0.6 0.6 0.6 1.0</ambient>
+                        <diffuse>0.7 0.7 0.7 1.0</diffuse>
                     </material>
                 </visual>
-            </link>
-        </model>
-
-        <!-- 4. YOUR CONES (With collisions intact) -->
-        <model name="red_cone">
-            <pose>3.0 1.0 0.0 0 0 0</pose>
-            <static>true</static>
-            <link name="link">
-                <visual name="visual">
-                    <geometry>
-                        <mesh>
-                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
-                            <scale>10.0 10.0 10.0</scale>
-                        </mesh>
-                    </geometry>
-                    <material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material>
-                </visual>
-                <collision name="collision">
-                    <geometry><cylinder><radius>0.15</radius><length>0.4</length></cylinder></geometry>
-                </collision>
-            </link>
-        </model>
-
-        <model name="green_cone">
-            <pose>5.5 0.6 0.0 0 0 0</pose>
-            <static>true</static>
-            <link name="link">
-                <visual name="visual">
-                    <geometry>
-                        <mesh>
-                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
-                            <scale>10.0 10.0 10.0</scale>
-                        </mesh>
-                    </geometry>
-                    <material><ambient>0.0 0.7 0.1 1</ambient><diffuse>0.0 0.7 0.1 1</diffuse></material>
-                </visual>
-                <collision name="collision">
-                    <geometry><cylinder><radius>0.15</radius><length>0.4</length></cylinder></geometry>
-                </collision>
-            </link>
-        </model>
-
-        <model name="blue_cone">
-            <pose>7.0 -0.5 0.0 0 0 0</pose>
-            <static>true</static>
-            <link name="link">
-                <visual name="visual">
-                    <geometry>
-                        <mesh>
-                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
-                            <scale>10.0 10.0 10.0</scale>
-                        </mesh>
-                    </geometry>
-                    <material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material>
-                </visual>
-                <collision name="collision">
-                    <geometry><cylinder><radius>0.15</radius><length>0.4</length></cylinder></geometry>
-                </collision>
-            </link>
-        </model>
-
-        <model name="yellow_cone">
-            <pose>5.0 0.5 0.0 0 0 0</pose>
-            <static>true</static>
-            <link name="link">
-                <visual name="visual">
-                    <geometry>
-                        <mesh>
-                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
-                            <scale>10.0 10.0 10.0</scale>
-                        </mesh>
-                    </geometry>
-                    <material><ambient>1.0 0.8 0.0 1</ambient><diffuse>1.0 0.8 0.0 1</diffuse></material>
-                </visual>
-                <collision name="collision">
-                    <geometry><cylinder><radius>0.15</radius><length>0.4</length></cylinder></geometry>
-                </collision>
-            </link>
-        </model>
-
-        <model name="orange_cone">
-            <pose>4.5 -1.5 0.0 0 0 0</pose>
-            <static>true</static>
-            <link name="link">
-                <visual name="visual">
-                    <geometry>
-                        <mesh>
-                            <uri>file:///home/yashvant/a3_ws/src/a3/a3/worlds/base_cone.dae</uri>
-                            <scale>10.0 10.0 10.0</scale>
-                        </mesh>
-                    </geometry>
-                    <material><ambient>1 0.5 0 1</ambient><diffuse>1 0.5 0 1</diffuse></material>
-                </visual>
-                <collision name="collision">
-                    <geometry><cylinder><radius>0.15</radius><length>0.4</length></cylinder></geometry>
-                </collision>
             </link>
         </model>
     </world>

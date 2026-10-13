@@ -393,7 +393,7 @@
   <!-- ROS 2 CONTROL HARDWARE INTERFACES -->
   <ros2_control name="IgnitionSystem" type="system">
     <hardware>
-      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      <plugin>ign_ros2_control/IgnitionSystem</plugin>
     </hardware>
     <joint name="front_left_steering_joint">
       <command_interface name="position"/>
@@ -433,8 +433,8 @@
     </joint>
   </ros2_control>
   <gazebo>
-    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-      <parameters>/home/yashvant/ros2_ws/install/autonavtest/share/autonavtest/config/ros2_controllers.yaml</parameters>
+    <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+      <parameters>$(find autonavtest)/config/ros2_controllers.yaml</parameters>
     </plugin>
   </gazebo>
   <!-- GAZEBO MATERIAL OVERRIDES -->

@@ -2,6 +2,7 @@
 import rclpy
 from rclpy.node import Node
 import math
+from rclpy.time import Time
 import time
 
 from geometry_msgs.msg import Twist, TransformStamped
@@ -44,7 +45,9 @@ class SwerveController(Node):
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0
-        self.last_time = self.get_clock().now()
+        self.last_time = None
+        self.last_steer = [0.0] * 4
+        self.joint_prefix = {'FL': 'front_left', 'FR': 'front_right', 'RL': 'rear_left', 'RR': 'rear_right'}
 
         self.get_logger().info("Swerve Kinematics Controller Online!")
 
@@ -79,66 +82,63 @@ class SwerveController(Node):
                 angle += math.pi
                 speed *= -1.0
             # -----------------------------------
-
-            # If the rover isn't moving, keep wheels facing forward to avoid snapping back
-            if vx == 0.0 and vy == 0.0 and omega == 0.0:
-                angle = 0.0
                 
             steer_cmds.append(angle)
             drive_cmds.append(speed)
+
+        if abs(vx) < 1e-3 and abs(vy) < 1e-3 and abs(omega) < 1e-3:
+            steer_cmds = list(self.last_steer)   # hold the wheel angles
+            drive_cmds = [0.0] * 4
+        else:
+            self.last_steer = list(steer_cmds)
 
         # Publish the arrays (Order matches the ros2_controllers.yaml: FL, FR, RL, RR)
         self.steer_pub.publish(Float64MultiArray(data=steer_cmds))
         self.drive_pub.publish(Float64MultiArray(data=drive_cmds))
 
     def joint_state_callback(self, msg):
-        """ Forward Kinematics: Joint States -> Odometry Pose """
-        current_time = self.get_clock().now()
-        dt = (current_time - self.last_time).nanoseconds / 1e9
-        self.last_time = current_time
-        
-        if dt <= 0: return
+        stamp = Time.from_msg(msg.header.stamp)
+        if self.last_time is None:
+            self.last_time = stamp
+            return
+        dt = (stamp - self.last_time).nanoseconds / 1e9
+        self.last_time = stamp
+        if dt <= 0.0 or dt > 0.5:
+            return
 
+        idx = {n: i for i, n in enumerate(msg.name)}
         try:
-            # Extract current speeds and angles from the encoders
-            # Note: You may need to verify the exact index mapping based on your Gazebo output
-            v_fl = msg.velocity[msg.name.index('front_left_drive_joint')] * self.wheel_radius
-            v_fr = msg.velocity[msg.name.index('front_right_drive_joint')] * self.wheel_radius
-            v_rl = msg.velocity[msg.name.index('rear_left_drive_joint')] * self.wheel_radius
-            v_rr = msg.velocity[msg.name.index('rear_right_drive_joint')] * self.wheel_radius
-            
-            a_fl = msg.position[msg.name.index('front_left_steering_joint')]
-            a_fr = msg.position[msg.name.index('front_right_steering_joint')]
-            a_rl = msg.position[msg.name.index('rear_left_steering_joint')]
-            a_rr = msg.position[msg.name.index('rear_right_steering_joint')]
-            
-            # Convert wheel vectors back to chassis velocities
-            vx_est = (v_fl*math.cos(a_fl) + v_fr*math.cos(a_fr) + v_rl*math.cos(a_rl) + v_rr*math.cos(a_rr)) / 4.0
-            vy_est = (v_fl*math.sin(a_fl) + v_fr*math.sin(a_fr) + v_rl*math.sin(a_rl) + v_rr*math.sin(a_rr)) / 4.0
-            
-            # Estimate angular velocity
-            omega_est = 0.0 # Simplified for brevity, usually averaged across torque vectors
-            
-            # Integrate to find new position
-            self.x += (vx_est * math.cos(self.theta) - vy_est * math.sin(self.theta)) * dt
-            self.y += (vx_est * math.sin(self.theta) + vy_est * math.cos(self.theta)) * dt
-            self.theta += omega_est * dt
-            
-            self.publish_odometry(vx_est, vy_est, omega_est)
-            
-        except ValueError:
-            pass # Joint states haven't fully populated yet
+            sum_vx = sum_vy = moment = 0.0
+            for key, prefix in self.joint_prefix.items():
+                v = msg.velocity[idx[f'{prefix}_drive_joint']] * self.wheel_radius
+                a = msg.position[idx[f'{prefix}_steering_joint']]
+                wvx, wvy = v * math.cos(a), v * math.sin(a)
+                x, y = self.wheels[key]
+                sum_vx += wvx
+                sum_vy += wvy
+                moment += x * wvy - y * wvx
+        except (KeyError, IndexError):
+            self.get_logger().warn('joint_states missing expected joints', throttle_duration_sec=5.0)
+            return
 
-    def publish_odometry(self, vx, vy, omega):
+        vx = sum_vx / 4.0
+        vy = sum_vy / 4.0
+        omega = moment / (self.L ** 2 + self.W ** 2)
+
+        self.x += (vx * math.cos(self.theta) - vy * math.sin(self.theta)) * dt
+        self.y += (vx * math.sin(self.theta) + vy * math.cos(self.theta)) * dt
+        self.theta = math.atan2(math.sin(self.theta + omega * dt),
+                                math.cos(self.theta + omega * dt))
+        self.publish_odometry(vx, vy, omega, msg.header.stamp)
+
+    def publish_odometry(self, vx, vy, omega, stamp):
         # Convert Euler yaw to Quaternion
         cy = math.cos(self.theta * 0.5)
         sy = math.sin(self.theta * 0.5)
 
-        current_time = self.get_clock().now().to_msg()
-
         # Publish Odom Message
         odom = Odometry()
-        odom.header.stamp = current_time
+        odom.header.stamp = stamp
         odom.header.frame_id = 'odom'
         odom.child_frame_id = 'base_footprint'
         
@@ -157,6 +157,13 @@ class SwerveController(Node):
         odom.twist.twist.linear.x = vx
         odom.twist.twist.linear.y = vy
         odom.twist.twist.angular.z = omega
+
+        odom.pose.covariance[0] = odom.pose.covariance[7] = 0.05
+        odom.pose.covariance[14] = odom.pose.covariance[21] = odom.pose.covariance[28] = 1e6
+        odom.pose.covariance[35] = 0.1
+        odom.twist.covariance[0] = odom.twist.covariance[7] = 0.02
+        odom.twist.covariance[14] = odom.twist.covariance[21] = odom.twist.covariance[28] = 1e6
+        odom.twist.covariance[35] = 0.05
         
         self.odom_pub.publish(odom)
 

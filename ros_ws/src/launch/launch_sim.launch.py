@@ -37,7 +37,7 @@ def generate_launch_description():
     spawn_entity = Node(
         package='ros_gz_sim',
         executable='create',
-        arguments=['-topic', 'robot_description', '-name', 'ares_nova'],
+        arguments=['-topic', 'robot_description', '-name', 'ares_nova', '-x', '0', '-y', '3', '-z', '0.25'],
         output='screen'
     )
     
@@ -46,16 +46,12 @@ def generate_launch_description():
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
-            '/scan@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan',
-            '/camera/image_raw@sensor_msgs/msg/Image@ignition.msgs.Image',
-            '/imu/data@sensor_msgs/msg/Imu@ignition.msgs.IMU',
             '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-            '/gps/fix@sensor_msgs/msg/NavSatFix[ignition.msgs.NavSat',
-            '/world/my_world/model/ares_nova/joint_state@sensor_msgs/msg/JointState[ignition.msgs.Model',
-            '/depth_camera/image_raw/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked'
-        ],
-        remappings=[
-            ('/world/my_world/model/ares_nova/joint_state', '/joint_states')
+            '/imu/data@sensor_msgs/msg/Imu[ignition.msgs.IMU',
+            '/depth_camera/image_raw/image@sensor_msgs/msg/Image[ignition.msgs.Image',
+            '/depth_camera/image_raw/depth_image@sensor_msgs/msg/Image[ignition.msgs.Image',
+            '/depth_camera/image_raw/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
+            '/model/ares_nova/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
         ],
         parameters=[{'use_sim_time': True}],
         output='screen'
@@ -63,10 +59,12 @@ def generate_launch_description():
 
     # 6. ros2_control Spawners
     spawn_broadcaster = Node(
-        package='controller_manager',
+        package='controller_manager', 
         executable='spawner',
-        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
-    )
+        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager', '--controller-manager-timeout', '60'])
+
+    delay_broadcaster = RegisterEventHandler(OnProcessExit(target_action=spawn_entity, on_exit=[spawn_broadcaster]))
+    
     spawn_drive = Node(
         package='controller_manager',
         executable='spawner',
@@ -86,7 +84,6 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
-    # 8. CHAINING THE SPAWNERS (The Fix for the Race Condition)
     delay_drive_spawner = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=spawn_broadcaster,
@@ -123,41 +120,15 @@ def generate_launch_description():
         remappings=[('odometry/filtered', 'odometry/local')]
     )
 
-    ekf_global = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_global',
-        output='screen',
-        parameters=[ekf_config_path, {'use_sim_time': True}],
-        remappings=[('odometry/filtered', 'odometry/global')]
-    )
-
-    navsat_node = Node(
-        package='robot_localization',
-        executable='navsat_transform_node',
-        name='navsat_transform',
-        output='screen',
-        parameters=[ekf_config_path, {'use_sim_time': True}],
-        remappings=[
-            ('imu', 'imu/data'),
-            ('gps/fix', 'gps/fix'),
-            ('gps/filtered', 'gps/filtered'),
-            ('odometry/gps', 'odometry/gps'),
-            ('odometry/filtered', 'odometry/global')
-        ]
-    )
-
     # 9. Launch Everything!
     return LaunchDescription([
         node_robot_state_publisher,
         gazebo,
         spawn_entity,
         bridge,
-        TimerAction(period=3.0, actions=[spawn_broadcaster]),
+        delay_broadcaster,
         delay_drive_spawner,
         delay_steer_spawner,
         delay_swerve_brain,
         ekf_local,
-        ekf_global,
-        navsat_node
     ])
