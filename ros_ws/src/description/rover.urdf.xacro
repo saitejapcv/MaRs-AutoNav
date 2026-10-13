@@ -60,9 +60,11 @@
     </joint>
   </ros2_control>
 
+  <xacro:arg name="params_file" default="$(find autonavtest)/config/ros2_controllers.yaml"/>
+
   <gazebo>
     <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-      <parameters>$(find autonavtest)/config/ros2_controllers.yaml</parameters>
+      <parameters>$(arg params_file)</parameters>
     </plugin>
   </gazebo>
 

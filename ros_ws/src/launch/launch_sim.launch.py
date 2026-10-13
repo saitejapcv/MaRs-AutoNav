@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction, RegisterEventHandler
+from launch.actions import IncludeLaunchDescription, TimerAction, RegisterEventHandler, SetEnvironmentVariable
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -10,12 +10,32 @@ import xacro
 def generate_launch_description():
     package_name = 'autonavtest'
     pkg_path = os.path.join(get_package_share_directory(package_name))
+
+    # Resource paths so Gazebo always finds meshes (e.g. map2.stl) regardless of working directory
+    ign_resource_path = SetEnvironmentVariable(
+        name='IGN_GAZEBO_RESOURCE_PATH',
+        value=[
+            os.path.join(pkg_path, 'worlds'), ':',
+            os.environ.get('IGN_GAZEBO_RESOURCE_PATH', '')
+        ]
+    )
+    gz_resource_path = SetEnvironmentVariable(
+        name='GZ_SIM_RESOURCE_PATH',
+        value=[
+            os.path.join(pkg_path, 'worlds'), ':',
+            os.environ.get('GZ_SIM_RESOURCE_PATH', '')
+        ]
+    )
     
-    # 1. Process the URDF XACRO
+    # 1. Process the URDF XACRO with dynamically resolved controller config path
     xacro_file = os.path.join(pkg_path, 'description', 'rover.urdf.xacro')
     world_file = os.path.join(pkg_path, 'worlds', 'world.sdf')
+    controllers_file = os.path.join(pkg_path, 'config', 'ros2_controllers.yaml')
     
-    robot_description_config = xacro.process_file(xacro_file)
+    robot_description_config = xacro.process_file(
+        xacro_file,
+        mappings={'params_file': controllers_file}
+    )
     robot_desc = {'robot_description': robot_description_config.toxml()}
     
     # 2. Robot State Publisher
@@ -122,6 +142,8 @@ def generate_launch_description():
 
     # 9. Launch Everything!
     return LaunchDescription([
+        ign_resource_path,
+        gz_resource_path,
         node_robot_state_publisher,
         gazebo,
         spawn_entity,
