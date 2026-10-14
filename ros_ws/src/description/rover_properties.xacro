@@ -41,7 +41,7 @@
   <!-- Mathematically flush with the top of the gold deck -->
   <xacro:property name="camera_beam_z_offset" value="${base_height/2 + 0.025}" /> 
   <xacro:property name="camera_beam_length" value="0.25" /> 
-  <xacro:property name="camera_pitch" value="0.0" />
+  <xacro:property name="camera_pitch" value="0.26" /> <!-- Tilted downward ~15 degrees -->
 
   <!-- GPS MODULE PARAMETERS -->
   <xacro:property name="gps_x_offset" value="-0.25" /> <!-- Rear edge -->

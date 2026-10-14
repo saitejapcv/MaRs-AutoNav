@@ -95,9 +95,9 @@
     <visualize>false</visualize>
     <update_rate>15.0</update_rate>
     <topic>/depth_camera/image_raw</topic>
-    <ignition_frame_id>camera_optical_link</ignition_frame_id>
-    <gz_frame_id>camera_optical_link</gz_frame_id>
+    <gz_frame_id>camera_link</gz_frame_id>
     <camera>
+      <optical_frame_id>camera_optical_link</optical_frame_id>
       <horizontal_fov>1.92</horizontal_fov>
       <image><width>640</width><height>480</height><format>R8G8B8</format></image>
       <clip><near>0.3</near><far>20.0</far></clip>
