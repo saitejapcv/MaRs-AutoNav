@@ -60,11 +60,9 @@
     </joint>
   </ros2_control>
 
-  <xacro:arg name="params_file" default="$(find autonavtest)/config/ros2_controllers.yaml"/>
-
   <gazebo>
     <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-      <parameters>$(arg params_file)</parameters>
+      <parameters>$(find autonavtest)/config/ros2_controllers.yaml</parameters>
     </plugin>
   </gazebo>
 
@@ -95,9 +93,9 @@
     <visualize>false</visualize>
     <update_rate>15.0</update_rate>
     <topic>/depth_camera/image_raw</topic>
-    <gz_frame_id>camera_link</gz_frame_id>
+    <ignition_frame_id>camera_optical_link</ignition_frame_id>
+    <gz_frame_id>camera_optical_link</gz_frame_id>
     <camera>
-      <optical_frame_id>camera_optical_link</optical_frame_id>
       <horizontal_fov>1.92</horizontal_fov>
       <image><width>640</width><height>480</height><format>R8G8B8</format></image>
       <clip><near>0.3</near><far>20.0</far></clip>

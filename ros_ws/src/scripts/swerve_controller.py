@@ -2,14 +2,14 @@
 import rclpy
 from rclpy.node import Node
 import math
-# pyrefly: ignore [missing-import]
 from rclpy.time import Time
 import time
 
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, TransformStamped
 from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
+from tf2_ros import TransformBroadcaster
 
 class SwerveController(Node):
     def __init__(self):
@@ -33,7 +33,9 @@ class SwerveController(Node):
         self.steer_pub = self.create_publisher(Float64MultiArray, '/steering_position_controller/commands', 10)
         self.drive_pub = self.create_publisher(Float64MultiArray, '/drive_velocity_controller/commands', 10)
         
+        # Publish Odometry & TF
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
+        self.tf_broadcaster = TransformBroadcaster(self)
         
         # Listen to target velocities and actual joint states
         self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
