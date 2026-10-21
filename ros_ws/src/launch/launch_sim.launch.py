@@ -117,7 +117,7 @@ def generate_launch_description():
         name='ekf_local',
         output='screen',
         parameters=[ekf_config_path, {'use_sim_time': True}],
-        remappings=[('odometry/filtered', 'odometry/local')]
+        remappings=[('odometry/filtered', 'odometry/global')]
     )
 
     # 9. Launch Everything!
