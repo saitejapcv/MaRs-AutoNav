@@ -52,6 +52,7 @@ def generate_launch_description():
             '/depth_camera/image_raw/depth_image@sensor_msgs/msg/Image[ignition.msgs.Image',
             '/depth_camera/image_raw/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
             '/model/ares_nova/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
+            '/gps/fix@sensor_msgs/msg/NavSatFix[ignition.msgs.NavSat',
         ],
         parameters=[{'use_sim_time': True}],
         output='screen'
