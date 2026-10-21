@@ -91,7 +91,7 @@
   <sensor name="depth_camera" type="rgbd_camera">
     <always_on>true</always_on>
     <visualize>false</visualize>
-    <update_rate>15.0</update_rate>
+    <update_rate>10.0</update_rate>  <!-- Reduced from 15Hz: prevents bridge overload and timestamp skew -->
     <topic>/depth_camera/image_raw</topic>
     <ignition_frame_id>camera_optical_link</ignition_frame_id>
     <gz_frame_id>camera_optical_link</gz_frame_id>

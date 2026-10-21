@@ -7,6 +7,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 import xacro
 
+
 def generate_launch_description():
     package_name = 'autonavtest'
     pkg_path = os.path.join(get_package_share_directory(package_name))
@@ -120,6 +121,28 @@ def generate_launch_description():
         remappings=[('odometry/filtered', 'odometry/global')]
     )
 
+    # 10. RGBD Sync — re-stamps depth to match RGB timestamp.
+    # ros_gz_bridge processes color/depth callbacks at different sim-clock moments,
+    # causing up to 132ms header skew. This node fixes that before rtabmap sees the data.
+    rgbd_sync = Node(
+        package='rtabmap_sync',
+        executable='rgbd_sync',
+        name='rgbd_sync',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'approx_sync': True,
+            'approx_sync_max_interval': 0.1,  # reject pairs >100ms apart
+            'queue_size': 30,
+        }],
+        remappings=[
+            ('rgb/image',        '/depth_camera/image_raw/image'),
+            ('depth/image',      '/depth_camera/image_raw/depth_image'),
+            ('rgb/camera_info',  '/depth_camera/image_raw/camera_info'),
+            # output: /rgbd_image  (consumed by rtabmap via rgbd_topic argument)
+        ]
+    )
+
     # 9. Launch Everything!
     return LaunchDescription([
         node_robot_state_publisher,
@@ -131,4 +154,5 @@ def generate_launch_description():
         delay_steer_spawner,
         delay_swerve_brain,
         ekf_local,
+        rgbd_sync,      # fixes Gazebo bridge timestamp skew before rtabmap
     ])
