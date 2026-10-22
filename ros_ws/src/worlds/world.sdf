@@ -123,7 +123,8 @@
                 <collision name="map_collision">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/yashvant/MaRs-AutoNav/ros_ws/src/worlds/map2.stl</uri> 
+                            <!-- Resolved relative to this installed world file. -->
+                            <uri>map2.stl</uri>
                             <!-- SCALED UP 2x -->
                             <scale>2 2 2</scale>
                         </mesh>
@@ -137,7 +138,7 @@
                 <visual name="map_visual">
                     <geometry>
                         <mesh>
-                            <uri>file:///home/yashvant/MaRs-AutoNav/ros_ws/src/worlds/map2.stl</uri>
+                            <uri>map2.stl</uri>
                             <!-- SCALED UP 2x -->
                             <scale>2 2 2</scale>
                         </mesh>
