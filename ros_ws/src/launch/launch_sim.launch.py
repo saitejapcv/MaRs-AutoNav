@@ -161,11 +161,30 @@ def generate_launch_description():
             'subscribe_rgbd': True,
             'queue_size': 60,
             'sync_queue_size': 60,
+            'topic_queue_size': 60,
             # Keep the existing one-Hz mapping cadence; this is not the
             # camera publishing rate.
             'Rtabmap/DetectionRate': '1.0',
+            # 2D navigation grid tuned for the 640x480, downward-looking
+            # simulated RGB-D camera.  The defaults preserve too much sparse
+            # depth noise while leaving observed free space unknown.
+            'Grid/Sensor': '1',                 # build the grid from depth
+            'Grid/3D': 'false',                 # 2D occupancy grid for navigation
+            'Grid/CellSize': '0.08',            # 8 cm cells; stable at rover scale
+            'Grid/DepthDecimation': '2',        # retain more depth detail than default 4x
+            'Grid/RangeMin': '0.4',             # reject near-clip artifacts
+            'Grid/RangeMax': '6.0',             # ignore unreliable distant depth
+            'Grid/RayTracing': 'true',          # mark space up to observations free
+            'Grid/NoiseFilteringRadius': '0.15',
+            'Grid/NoiseFilteringMinNeighbors': '3',
+            'GridGlobal/FootprintRadius': '0.55', # remove the rover from its map
         }],
-        remappings=[('rgbd_image', '/rgbd_image')]
+        remappings=[
+            ('rgbd_image', '/rgbd_image'),
+            # rtabmap_ros takes odometry as the "odom" topic; a parameter
+            # named odom_topic does not remap that subscription.
+            ('odom', '/odometry/global'),
+        ]
     )
 
     rtabmap_viz = Node(
@@ -180,8 +199,12 @@ def generate_launch_description():
             'subscribe_rgbd': True,
             'queue_size': 60,
             'sync_queue_size': 60,
+            'topic_queue_size': 60,
         }],
-        remappings=[('rgbd_image', '/rgbd_image')]
+        remappings=[
+            ('rgbd_image', '/rgbd_image'),
+            ('odom', '/odometry/global'),
+        ]
     )
 
     # 9. Launch Everything!
