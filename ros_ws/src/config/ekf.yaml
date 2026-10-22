@@ -1,22 +1,37 @@
-ekf_local:
+ekf_filter_node:
   ros__parameters:
     frequency: 30.0
     two_d_mode: true
     publish_tf: true
+    
     map_frame: map
     odom_frame: odom
     base_link_frame: base_footprint
     world_frame: odom
 
-    # Gazebo's model odometry is already bridged in launch_sim.launch.py.
-    # Use it for the simulator instead of integrating wheel speeds again: a
-    # swerve-drive wheel estimate drifts/slips, which mis-registers RGB-D
-    # frames and creates strips in the occupancy map.
-    odom0: /model/ares_nova/odometry
-    #              x     y      z      r      p      yaw   vx    vy    vz     vr     vp    vyaw   ax     ay     az
-    odom0_config: [true, true, false, false, false, true, true, true, false, false, false, true,  false, false, false]
-    odom0_queue_size: 30
-
+    # 1. Raw Wheel Odometry (from swerve_controller.py)
+    odom0: /odom
+    # We only trust the linear X and Y velocities from the wheels.
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  false,
+                   false, false, false,
+                   false, false, false]
+                   
+    # 2. IMU Sensor (from the Ignition plugin)
     imu0: /imu/data
-    imu0_config:  [false, false, false, false, false, false, false, false, false, false, false, true, false, false, false]
-    imu0_queue_size: 10
+    # We trust the yaw (orientation), yaw velocity, and X/Y linear accelerations from the IMU.
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  false,  false,  false]
+
+    # 3. Translated GPS Odometry (from navsat_transform_node)
+    odom1: /odometry/gps
+    # We strictly trust the absolute X and Y map coordinates from the GPS
+    odom1_config: [true,  true,  false,
+               false, false, false,
+               false, false, false,
+               false, false, false,
+               false, false, false]

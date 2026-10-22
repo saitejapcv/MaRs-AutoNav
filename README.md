@@ -10,19 +10,6 @@ step 4:
 step 5: 
     In a new terminal run teleop
 
-This launch starts Gazebo, RGB-D synchronization, RTAB-Map and RTAB-Map Viz.
-Do not start another RTAB-Map launch that subscribes directly to
-`/depth_camera/image_raw/image`, `/depth_camera/image_raw/depth_image` and
-`/depth_camera/image_raw/camera_info`: those independently bridged streams can
-have different header timestamps. The supplied launch instead sends the
-synchronized `/rgbd_image` stream to both RTAB-Map nodes.
-
-To verify the camera path while the simulator is running:
-
-    ros2 topic hz /depth_camera/image_raw/image
-    ros2 topic hz /depth_camera/image_raw/depth_image
-    ros2 topic hz /rgbd_image
-
 
 ## URDF preview
 You shall preview the URDF using the preview.urdf file, in your VS CODE using URDF extension by smilerobotics
