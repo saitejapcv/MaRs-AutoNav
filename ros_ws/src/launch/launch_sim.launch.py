@@ -174,7 +174,10 @@ def generate_launch_description():
             'Grid/DepthDecimation': '2',        # retain more depth detail than default 4x
             'Grid/RangeMin': '0.4',             # reject near-clip artifacts
             'Grid/RangeMax': '6.0',             # ignore unreliable distant depth
-            'Grid/RayTracing': 'true',          # mark space up to observations free
+            # A dense depth camera looking at uneven terrain does not provide
+            # laser-like free-space rays. Projecting every ray into 2D caused
+            # the broad wedge artifacts in the global grid.
+            'Grid/RayTracing': 'false',
             'Grid/NoiseFilteringRadius': '0.15',
             'Grid/NoiseFilteringMinNeighbors': '3',
             'GridGlobal/FootprintRadius': '0.55', # remove the rover from its map
