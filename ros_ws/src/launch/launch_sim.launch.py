@@ -121,7 +121,10 @@ def generate_launch_description():
         remappings=[('odometry/filtered', 'odometry/global')]
     )
 
-    # 10. RGBD Sync — re-stamps depth to match RGB timestamp.
+    # 10. RGBD Sync — packages matching RGB, depth and camera-info messages
+    # into one RGBDImage.  The Gazebo bridge may deliver the RGB and depth
+    # messages up to 132 ms apart even though they came from the same sensor
+    # update, so a 100 ms matching window drops valid frames.
     # ros_gz_bridge processes color/depth callbacks at different sim-clock moments,
     # causing up to 132ms header skew. This node fixes that before rtabmap sees the data.
     rgbd_sync = Node(
@@ -132,8 +135,8 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': True,
             'approx_sync': True,
-            'approx_sync_max_interval': 0.1,  # reject pairs >100ms apart
-            'queue_size': 30,
+            'approx_sync_max_interval': 0.2,
+            'queue_size': 60,
         }],
         remappings=[
             ('rgb/image',        '/depth_camera/image_raw/image'),
@@ -141,6 +144,44 @@ def generate_launch_description():
             ('rgb/camera_info',  '/depth_camera/image_raw/camera_info'),
             # output: /rgbd_image  (consumed by rtabmap via rgbd_topic argument)
         ]
+    )
+
+    # 11. RTAB-Map must consume the combined RGBDImage, not the three raw
+    # bridge topics.  Subscribing to the raw topics recreates the timestamp
+    # mismatch above and produces repeated "Did not receive data" warnings.
+    rtabmap = Node(
+        package='rtabmap_slam',
+        executable='rtabmap',
+        name='rtabmap',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'frame_id': 'base_footprint',
+            'odom_topic': '/odometry/global',
+            'subscribe_rgbd': True,
+            'queue_size': 60,
+            'sync_queue_size': 60,
+            # Keep the existing one-Hz mapping cadence; this is not the
+            # camera publishing rate.
+            'Rtabmap/DetectionRate': '1.0',
+        }],
+        remappings=[('rgbd_image', '/rgbd_image')]
+    )
+
+    rtabmap_viz = Node(
+        package='rtabmap_viz',
+        executable='rtabmap_viz',
+        name='rtabmap_viz',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'frame_id': 'base_footprint',
+            'odom_topic': '/odometry/global',
+            'subscribe_rgbd': True,
+            'queue_size': 60,
+            'sync_queue_size': 60,
+        }],
+        remappings=[('rgbd_image', '/rgbd_image')]
     )
 
     # 9. Launch Everything!
@@ -154,5 +195,7 @@ def generate_launch_description():
         delay_steer_spawner,
         delay_swerve_brain,
         ekf_local,
-        rgbd_sync,      # fixes Gazebo bridge timestamp skew before rtabmap
+        rgbd_sync,
+        rtabmap,
+        rtabmap_viz,
     ])
