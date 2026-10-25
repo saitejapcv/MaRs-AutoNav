@@ -4,6 +4,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 
 def generate_launch_description():
     # Package directories
@@ -20,6 +21,21 @@ def generate_launch_description():
     rviz_cfg = LaunchConfiguration('rviz_cfg')
     localization = LaunchConfiguration('localization')
     args = LaunchConfiguration('args')
+
+    # Shared Grid parameters (defined once, reused across RTAB-Map SLAM and obstacles_detection)
+    grid_params = {
+        'Grid/RayTracing': 'false',
+        'Grid/MaxGroundAngle': '29',
+        'Grid/RangeMax': '5.0',
+        'Grid/RangeMin': '0.4',
+        'Grid/FlatObstacleDetected': 'false',
+        'Grid/NormalK': '30',
+        'Grid/NoiseFilteringRadius': '0.15',
+        'Grid/NoiseFilteringMinNeighbors': '8',
+        'Grid/MinClusterSize': '30',
+        'Grid/MinGroundHeight': '-0.20',
+    }
+    grid_args_str = ' '.join([f'--{k} {v}' for k, v in grid_params.items()])
 
     declare_use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
@@ -55,21 +71,50 @@ def generate_launch_description():
 
     declare_args = DeclareLaunchArgument(
         'args',
-        default_value=(
-            '--delete_db_on_start '
-            '--Grid/RayTracing false '
-            '--Grid/MaxGroundAngle 29 '
-            '--Grid/RangeMax 5.0 '
-            '--Grid/RangeMin 0.4 '
-            '--Grid/FlatObstacleDetected false '
-            '--Grid/NormalK 30 '
-            '--Grid/NoiseFilteringRadius 0.15 '
-            '--Grid/NoiseFilteringMinNeighbors 8 '
-            '--Grid/MinClusterSize 30 '
-            '--GridGlobal/Eroded true '
-            '--Grid/MinGroundHeight -0.20'
-        ),
+        default_value=f'--delete_db_on_start --GridGlobal/Eroded true {grid_args_str}',
         description='Custom RTAB-Map core arguments'
+    )
+
+    # Point Cloud Generation from Depth Image
+    node_point_cloud_xyz = Node(
+        package='rtabmap_util',
+        executable='point_cloud_xyz',
+        name='point_cloud_xyz',
+        output='screen',
+        parameters=[{
+            'decimation': 4,
+            'min_depth': 0.4,
+            'max_depth': 5.0,
+            'approx_sync': True,
+            'use_sim_time': use_sim_time,
+        }],
+        remappings=[
+            ('depth/image', '/depth_camera/image_raw/depth_image'),
+            ('depth/camera_info', '/depth_camera/image_raw/camera_info'),
+            ('cloud', '/camera/cloud'),
+        ]
+    )
+
+    # Obstacle vs Ground Segmentation Node
+    node_obstacles_detection = Node(
+        package='rtabmap_util',
+        executable='obstacles_detection',
+        name='obstacles_detection',
+        output='screen',
+        parameters=[
+            grid_params,
+            {
+                'frame_id': 'base_footprint',
+                'map_frame_id': 'map',
+                'wait_for_transform': 0.2,
+                'use_sim_time': use_sim_time,
+            }
+        ],
+        remappings=[
+            ('cloud', '/camera/cloud'),
+            ('obstacles', '/obstacles'),
+            ('ground', '/ground'),
+        ]
     )
 
     # Include RTAB-Map main launch with configured parameters
@@ -101,5 +146,7 @@ def generate_launch_description():
         declare_rviz_cfg,
         declare_localization,
         declare_args,
+        node_point_cloud_xyz,
+        node_obstacles_detection,
         rtabmap_launch
     ])
