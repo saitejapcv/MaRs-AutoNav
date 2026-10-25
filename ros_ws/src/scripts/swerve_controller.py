@@ -49,10 +49,16 @@ class SwerveController(Node):
         self.last_steer = [0.0] * 4
         self.joint_prefix = {'FL': 'front_left', 'FR': 'front_right', 'RL': 'rear_left', 'RR': 'rear_right'}
 
+        # --- 4. WATCHDOG TIMER ---
+        self.last_cmd_vel_time = self.get_clock().now()
+        self.cmd_timeout = 0.5  # seconds
+        self.watchdog_timer = self.create_timer(0.05, self.watchdog_callback)
+
         self.get_logger().info("Swerve Kinematics Controller Online!")
 
     def cmd_vel_callback(self, msg):
         """ Inverse Kinematics: cmd_vel -> Wheel Angles & Speeds """
+        self.last_cmd_vel_time = self.get_clock().now()
         vx = msg.linear.x
         vy = msg.linear.y
         omega = msg.angular.z
@@ -95,6 +101,12 @@ class SwerveController(Node):
         # Publish the arrays (Order matches the ros2_controllers.yaml: FL, FR, RL, RR)
         self.steer_pub.publish(Float64MultiArray(data=steer_cmds))
         self.drive_pub.publish(Float64MultiArray(data=drive_cmds))
+
+    def watchdog_callback(self):
+        """ Stop drive motors if no cmd_vel received within timeout """
+        dt = (self.get_clock().now() - self.last_cmd_vel_time).nanoseconds / 1e9
+        if dt > self.cmd_timeout:
+            self.drive_pub.publish(Float64MultiArray(data=[0.0] * 4))
 
     def joint_state_callback(self, msg):
         stamp = Time.from_msg(msg.header.stamp)

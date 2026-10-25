@@ -75,6 +75,7 @@ controller_server:
     odom_topic: /odometry/local
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"]
+    current_goal_checker: "general_goal_checker"
     controller_plugins: ["FollowPath"]
 
     progress_checker:
@@ -98,7 +99,7 @@ controller_server:
       max_vel_theta: 0.6
       min_speed_xy: 0.0
       max_speed_xy: 0.4
-      min_speed_theta: 0.0
+      min_speed_theta: 0.25
       acc_lim_x: 0.5
       acc_lim_y: 0.0
       acc_lim_theta: 1.0
@@ -125,7 +126,7 @@ controller_server:
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
       RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
+      RotateToGoal.slowing_factor: 1.2
       RotateToGoal.lookahead_time: -1.0
 
 local_costmap:
@@ -146,8 +147,8 @@ local_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: pointcloud
-        pointcloud:
+        observation_sources: obstacles ground
+        obstacles:
           topic: /obstacles
           max_obstacle_height: 1.0
           min_obstacle_height: 0.1
@@ -157,6 +158,17 @@ local_costmap:
           raytrace_min_range: 0.4
           clearing: True
           marking: True
+          data_type: "PointCloud2"
+        ground:
+          topic: /ground
+          max_obstacle_height: 1.0
+          min_obstacle_height: -0.5
+          obstacle_max_range: 4.0
+          obstacle_min_range: 0.4
+          raytrace_max_range: 5.0
+          raytrace_min_range: 0.4
+          clearing: True
+          marking: False
           data_type: "PointCloud2"
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -184,8 +196,8 @@ global_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: pointcloud
-        pointcloud:
+        observation_sources: obstacles ground
+        obstacles:
           topic: /obstacles
           max_obstacle_height: 1.0
           min_obstacle_height: 0.1
@@ -195,6 +207,17 @@ global_costmap:
           raytrace_min_range: 0.4
           clearing: True
           marking: True
+          data_type: "PointCloud2"
+        ground:
+          topic: /ground
+          max_obstacle_height: 1.0
+          min_obstacle_height: -0.5
+          obstacle_max_range: 4.0
+          obstacle_min_range: 0.4
+          raytrace_max_range: 5.0
+          raytrace_min_range: 0.4
+          clearing: True
+          marking: False
           data_type: "PointCloud2"
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"

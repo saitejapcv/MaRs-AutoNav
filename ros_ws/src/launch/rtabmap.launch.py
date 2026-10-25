@@ -3,7 +3,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 def generate_launch_description():
@@ -36,6 +36,10 @@ def generate_launch_description():
         'Grid/MinGroundHeight': '-0.20',
     }
     grid_args_str = ' '.join([f'--{k} {v}' for k, v in grid_params.items()])
+
+    # Argument strings: mapping deletes DB on start; localization preserves saved DB
+    mapping_args_str = f'--delete_db_on_start --GridGlobal/Eroded true {grid_args_str}'
+    loc_args_str = f'--GridGlobal/Eroded true {grid_args_str}'
 
     declare_use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
@@ -71,7 +75,9 @@ def generate_launch_description():
 
     declare_args = DeclareLaunchArgument(
         'args',
-        default_value=f'--delete_db_on_start --GridGlobal/Eroded true {grid_args_str}',
+        default_value=PythonExpression([
+            f"'{loc_args_str}' if '", localization, "' == 'true' else '{mapping_args_str}'"
+        ]),
         description='Custom RTAB-Map core arguments'
     )
 
