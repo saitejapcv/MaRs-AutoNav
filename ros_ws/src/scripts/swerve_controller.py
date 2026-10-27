@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rclpy.time import Time
 import math
 import time
 
@@ -93,7 +94,13 @@ class SwerveController(Node):
 
     def joint_state_callback(self, msg):
         """ Forward Kinematics: Joint States -> Odometry Pose """
-        current_time = self.get_clock().now()
+        if msg.header.stamp.sec > 0 or msg.header.stamp.nanosec > 0:
+            current_time = Time.from_msg(msg.header.stamp)
+            stamp_msg = msg.header.stamp
+        else:
+            current_time = self.get_clock().now()
+            stamp_msg = current_time.to_msg()
+
         if self.last_time is None:
             self.last_time = current_time
             return
@@ -132,21 +139,22 @@ class SwerveController(Node):
             self.y += (vx_est * math.sin(self.theta) + vy_est * math.cos(self.theta)) * dt
             self.theta += omega_est * dt
             
-            self.publish_odometry(vx_est, vy_est, omega_est)
+            self.publish_odometry(vx_est, vy_est, omega_est, stamp_msg)
             
         except ValueError:
             pass # Joint states haven't fully populated yet
 
-    def publish_odometry(self, vx, vy, omega):
+    def publish_odometry(self, vx, vy, omega, stamp=None):
         # Convert Euler yaw to Quaternion
         cy = math.cos(self.theta * 0.5)
         sy = math.sin(self.theta * 0.5)
 
-        current_time = self.get_clock().now().to_msg()
+        if stamp is None:
+            stamp = self.get_clock().now().to_msg()
 
         # Publish Odom Message
         odom = Odometry()
-        odom.header.stamp = current_time
+        odom.header.stamp = stamp
         odom.header.frame_id = 'odom'
         odom.child_frame_id = 'base_footprint'
         
@@ -160,20 +168,40 @@ class SwerveController(Node):
         odom.pose.pose.orientation.y = 0.0
         odom.pose.pose.orientation.z = sy
         odom.pose.pose.orientation.w = cy
+
+        # Standard Covariances for EKF filter fusion
+        odom.pose.covariance[0] = 0.001
+        odom.pose.covariance[7] = 0.001
+        odom.pose.covariance[14] = 1e6
+        odom.pose.covariance[21] = 1e6
+        odom.pose.covariance[28] = 1e6
+        odom.pose.covariance[35] = 0.01
         
         # Velocities
         odom.twist.twist.linear.x = vx
         odom.twist.twist.linear.y = vy
         odom.twist.twist.angular.z = omega
+
+        odom.twist.covariance[0] = 0.001
+        odom.twist.covariance[7] = 0.001
+        odom.twist.covariance[14] = 1e6
+        odom.twist.covariance[21] = 1e6
+        odom.twist.covariance[28] = 1e6
+        odom.twist.covariance[35] = 0.01
         
         self.odom_pub.publish(odom)
 
 def main(args=None):
     rclpy.init(args=args)
     node = SwerveController()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

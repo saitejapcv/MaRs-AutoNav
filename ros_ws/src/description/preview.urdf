@@ -434,7 +434,7 @@
   </ros2_control>
   <gazebo>
     <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-      <parameters>/home/yashvant/ros2_ws/install/autonavtest/share/autonavtest/config/ros2_controllers.yaml</parameters>
+      <parameters>/home/yashvant/Desktop/MaRs-AutoNav/install/autonavtest/share/autonavtest/config/ros2_controllers.yaml</parameters>
     </plugin>
   </gazebo>
   <!-- GAZEBO MATERIAL OVERRIDES -->

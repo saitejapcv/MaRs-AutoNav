@@ -1,7 +1,9 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction, RegisterEventHandler
+from launch.actions import IncludeLaunchDescription, TimerAction, RegisterEventHandler, DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -39,7 +41,7 @@ def generate_launch_description():
         executable='create',
         arguments=['-topic', 'robot_description', '-name', 'ares_nova', '-x', '0.0',
             '-y', '0.0',
-            '-z', '1.5'],
+            '-z', '0.3'],
         output='screen'
     )
     
@@ -50,14 +52,11 @@ def generate_launch_description():
         arguments=[
             '/scan@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan',
             '/camera/image_raw@sensor_msgs/msg/Image@ignition.msgs.Image',
+            '/depth_camera/image_raw@sensor_msgs/msg/Image[ignition.msgs.Image',
             '/imu/data@sensor_msgs/msg/Imu@ignition.msgs.IMU',
             '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-            '/world/my_world/model/ares_nova/joint_state@sensor_msgs/msg/JointState[ignition.msgs.Model',
             '/depth_camera/image_raw/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked',
             '/gps/fix@sensor_msgs/msg/NavSatFix@ignition.msgs.NavSat'
-        ],
-        remappings=[
-            ('/world/my_world/model/ares_nova/joint_state', '/joint_states')
         ],
         parameters=[{'use_sim_time': True}],
         output='screen'
@@ -147,30 +146,65 @@ def generate_launch_description():
     )
 
     rtabmap_node = Node(
-    package='rtabmap_slam',
-    executable='rtabmap',
-    name='rtabmap',
-    output='screen',
-    parameters=[{
-        'use_sim_time': True,
-        'frame_id': 'base_footprint',        # Anchors the map to the rover's base
-        'subscribe_depth': False,
-        'subscribe_rgb': False,
-        'subscribe_scan_cloud': True,        # We are feeding it the dense 3D point cloud
-        'approx_sync': True,
-        'Grid/From3D': 'true',               # Squashes the 3D map into a 2D floorplan for Nav2
-        'Grid/MaxObstacleHeight': '2.0',     # Ignores ceilings
-        'Grid/RayTracing': 'true'            # Clears free space as the camera moves
-    }],
-    remappings=[
-        ('odom', '/odometry/filtered'),
-        ('scan_cloud', '/depth_camera/image_raw/points')
-    ],
-    arguments=['-d'] # Deletes the old map database on every fresh boot
-)
+        package='rtabmap_slam',
+        executable='rtabmap',
+        name='rtabmap',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'frame_id': 'base_footprint',        # Anchors the map to the rover's base
+            'odom_frame_id': 'odom',
+            'map_frame_id': 'map',
+            'subscribe_depth': False,
+            'subscribe_rgb': False,
+            'subscribe_scan_cloud': True,        # We are feeding it the dense 3D point cloud
+            'approx_sync': True,
+            'wait_for_transform': 0.5,
+            'sync_queue_size': 20,
+            'topic_queue_size': 20,
+            'Grid/NormalsSegmentation': 'true',
+            'Grid/MaxGroundAngle': '20.0',       # Slopes steeper than 20 deg are classified as obstacles
+            'Grid/NormalK': '20',                # K=20 gives smoother normal estimation and reduces surface jitter
+            'Grid/MinClusterSize': '15',         # Minimum cluster size to retain obstacle points (filters speckles)
+            'Grid/MaxObstacleHeight': '2.0',     # Ignores points higher than 2.0m
+            'Grid/RangeMax': '5.0',              # Clips far-range depth distortion and boundary ray artifacts
+            'Grid/RangeMin': '0.4',              # Clips near-field points / chassis reflections
+            'Grid/NoiseFilteringRadius': '0.15', # Rejects outlier points with radius search
+            'Grid/NoiseFilteringMinNeighbors': '5', # Minimum neighbors required in filtering radius
+            'Grid/PreVoxelFiltering': 'true',    # Downsamples cloud to CellSize before normal calculation
+            'Grid/CellSize': '0.05',             # 5cm grid resolution
+            'Grid/RayTracing': 'false',          # Disables aggressive clearing inside depressions
+            'Grid/From3D': 'true',               # Projects 3D scan cloud directly into 2D occupancy grid
+            'Grid/Sensor': '0',
+            'RGBD/CreateOccupancyGrid': 'true',  # Creates and saves local occupancy grids in memory
+            'RGBD/ProximityPathMaxNeighbors': '0'
+        }],
+        remappings=[
+            ('odom', '/odometry/filtered'),
+            ('scan_cloud', '/depth_camera/image_raw/points')
+        ],
+        arguments=['-d'] # Deletes the old map database on every fresh boot
+    )
 
-    # 9. Launch Everything!
+    # 9. RViz2 Node
+    rviz_config_file = os.path.join(pkg_path, 'config', 'autonavtest.rviz')
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config_file],
+        parameters=[{'use_sim_time': True}],
+        condition=IfCondition(LaunchConfiguration('use_rviz'))
+    )
+
+    # 10. Launch Everything!
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value='true',
+            description='Whether to launch RViz2'
+        ),
         node_robot_state_publisher,
         gazebo,
         spawn_entity,
@@ -181,5 +215,6 @@ def generate_launch_description():
         delay_swerve_brain,
         start_ekf_node,
         TimerAction(period=5.0, actions=[navsat_transform]),
-        TimerAction(period=7.0, actions=[rtabmap_node])
+        TimerAction(period=7.0, actions=[rtabmap_node]),
+        TimerAction(period=8.5, actions=[rviz_node])
     ])
