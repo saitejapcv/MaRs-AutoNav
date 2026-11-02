@@ -76,7 +76,7 @@ def generate_launch_description():
     declare_args = DeclareLaunchArgument(
         'args',
         default_value=PythonExpression([
-            f"'{loc_args_str}' if '", localization, "' == 'true' else '{mapping_args_str}'"
+            f"'{loc_args_str}' if '", localization, f"' == 'true' else '{mapping_args_str}'"
         ]),
         description='Custom RTAB-Map core arguments'
     )
@@ -111,7 +111,7 @@ def generate_launch_description():
             grid_params,
             {
                 'frame_id': 'base_footprint',
-                'map_frame_id': 'map',
+                'map_frame_id': 'odom',
                 'wait_for_transform': 0.2,
                 'use_sim_time': use_sim_time,
             }

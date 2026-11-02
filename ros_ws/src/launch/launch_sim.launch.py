@@ -52,7 +52,12 @@ def generate_launch_description():
             '/depth_camera/image_raw/depth_image@sensor_msgs/msg/Image[ignition.msgs.Image',
             '/depth_camera/image_raw/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
             '/model/ares_nova/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
+            '/model/ares_nova/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
             '/gps/fix@sensor_msgs/msg/NavSatFix[ignition.msgs.NavSat',
+        ],
+        remappings=[
+            ('/model/ares_nova/odometry', '/odometry/local'),
+            ('/model/ares_nova/tf', '/tf'),
         ],
         parameters=[{'use_sim_time': True}],
         output='screen'
@@ -106,20 +111,20 @@ def generate_launch_description():
         )
     )
 
-    ekf_config_path = os.path.join(
-        get_package_share_directory(package_name),
-        'config',
-        'ekf.yaml'
-    )
+    #ekf_config_path = os.path.join(
+    #    get_package_share_directory(package_name),
+    #    'config',
+    #    'ekf.yaml'
+    #)
 
-    ekf_local = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_local',
-        output='screen',
-        parameters=[ekf_config_path, {'use_sim_time': True}],
-        remappings=[('odometry/filtered', 'odometry/local')]
-    )
+    #ekf_local = Node(
+    #    package='robot_localization',
+    #    executable='ekf_node',
+    #    name='ekf_local',
+    #    output='screen',
+    #    parameters=[ekf_config_path, {'use_sim_time': True}],
+    #    remappings=[('odometry/filtered', 'odometry/local')]
+    #)
 
     # 9. Launch Everything!
     return LaunchDescription([
@@ -131,5 +136,5 @@ def generate_launch_description():
         delay_drive_spawner,
         delay_steer_spawner,
         delay_swerve_brain,
-        ekf_local,
+        #ekf_local,
     ])

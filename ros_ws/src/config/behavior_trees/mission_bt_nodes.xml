@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+  Custom BT Node Definitions for MaRS Mission Tree
+  This file defines the custom nodes used in mission_tree.xml so Groot2 can recognize them.
+  Copy this content or load it as a custom node definition in Groot2.
+
+  Note: These are STUB/basic implementations for the Caterpillar Autonomy Challenge prototype.
+  Real versions will integrate with ArUco detection, Nav2 action server, claw mechanisms, etc.
+-->
+<root>
+  <TreeNodesModel>
+    <!-- ############################### ACTION NODES ################################# -->
+
+    <Action ID="WaitForNav2">
+      <input_port name="timeout" default="60" description="Timeout in seconds waiting for Nav2 action server"/>
+      <doc>Waits for the /navigate_to_pose action server to become available. Returns SUCCESS when ready, FAILURE on timeout.</doc>
+    </Action>
+
+    <Action ID="LocateMarkers">
+      <input_port name="duration" default="5" description="Time to simulate marker search (seconds)"/>
+      <input_port name="force_failure" default="false" description="If true, node will fail (for testing)"/>
+      <doc>STUB: Simulates rotating until ArUco markers are detected. Real version will subscribe to ArUco detections and rotate until markers are seen.</doc>
+    </Action>
+
+    <Action ID="NavigateToPose">
+      <input_port name="pose_name" description="Name of pose to look up from parameters (e.g., excavation_staging)"/>
+      <doc>Sends a Nav2 NavigateToPose goal using pose [x, y, yaw] from mission_params.yaml (poses.pose_name). Returns RUNNING until goal completes, then SUCCESS/FAILURE.</doc>
+    </Action>
+
+    <Action ID="Excavate">
+      <input_port name="duration" default="3" description="Time to simulate excavation (seconds)"/>
+      <doc>STUB: Simulates excavation/claw pickup. Real version will call mechanical team&apos;s claw action server.</doc>
+    </Action>
+
+    <Action ID="Dump">
+      <input_port name="duration" default="2" description="Time to simulate dumping (seconds)"/>
+      <doc>STUB: Simulates dumping sand at construction zone. Real version will call mechanical team&apos;s claw action server.</doc>
+    </Action>
+
+    <Action ID="SafeStop">
+      <doc>Emergency stop: cancels any active Nav2 goal and publishes zero Twist on /cmd_vel.</doc>
+    </Action>
+
+    <!-- ############################### CONDITION NODES ############################## -->
+
+    <Condition ID="IsInZone">
+      <input_port name="zone_name" description="Name of zone to check (e.g., excavation)"/>
+      <doc>Checks if robot (base_footprint in map frame) is within rectangular zone from mission_params.yaml (zones.zone_name = [x_min, x_max, y_min, y_max]).</doc>
+    </Condition>
+
+    <Condition ID="TimeRemaining">
+      <input_port name="time_limit" default="600" description="Mission time limit in seconds"/>
+      <doc>Returns SUCCESS while elapsed mission time &lt; time_limit, FAILURE when time expires.</doc>
+    </Condition>
+
+    <Condition ID="MarkerSeenRecently">
+      <input_port name="timeout" default="10" description="Time window to consider markers recent (seconds)"/>
+      <doc>STUB: Always returns FAILURE to force fallback to LocateMarkers. Real version checks ArUco detection timestamps.</doc>
+    </Condition>
+
+    <!-- ############################### SYNC ACTION NODES ############################ -->
+
+    <Action ID="AnnounceState">
+      <input_port name="state" description="Mission state to announce (e.g., TRAVEL, EXCAVATE)"/>
+      <doc>Logs the state and publishes std_msgs/String to /mission/state topic. Returns SUCCESS immediately.</doc>
+    </Action>
+
+  </TreeNodesModel>
+</root>

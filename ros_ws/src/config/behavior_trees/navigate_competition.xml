@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+  Competition Behavior Tree for MaRS Autonav - based on Nav2 default navigate_to_pose_w_replanning_and_recovery.xml
+  Structure explanation:
+  - RecoveryNode (NavigateRecovery): Top-level recovery wrapper that retries the entire navigation up to 3 times
+  - PipelineSequence (NavigateWithReplanning): Runs children in sequence, but if any child returns RUNNING, it restarts from the first child on next tick
+  - RateController (hz=1.0): Limits the replanning rate to 1 Hz by wrapping the ComputePathToPose recovery
+  - RecoveryNode (ComputePathToPose): Retries path computation once on failure, clears global costmap between retries
+  - RecoveryNode (FollowPath): Retries path following once on failure, clears local costmap between retries
+  - ReactiveFallback (RecoveryFallback): Runs children in order; if first child (GoalUpdated) succeeds, it stops. Otherwise runs RecoveryActions.
+  - RoundRobin (RecoveryActions): Cycles through recovery behaviors on each activation: Clear costmaps -> Spin -> Wait -> BackUp
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <!-- Outer RecoveryNode: reduced retries from 6 to 3 for faster failure detection in competition -->
+    <RecoveryNode number_of_retries="3" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingActions">
+            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+          <!-- Spin: reduced spin_dist from 1.57 (90 deg) to 0.8 (~46 deg) for tighter recovery turns -->
+          <Spin spin_dist="0.8"/>
+          <!-- Wait: reduced wait_duration from 5s to 3s for faster recovery cycles -->
+          <Wait wait_duration="3"/>
+          <!-- BackUp: reduced backup_dist from 0.30m to 0.20m for less backward travel during recovery -->
+          <BackUp backup_dist="0.20" backup_speed="0.05"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+</root>

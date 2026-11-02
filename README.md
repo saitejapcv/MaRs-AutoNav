@@ -19,9 +19,9 @@ Autonomous Navigation, 3D SLAM, and Simulation stack for a 4-wheel independent s
   * **Pure Localization Mode:** Preserves the database read-only (`localization:=true`), localizing against the saved map without modifying map geometry.
 * **Sensor Fusion (EKF):** `robot_localization` EKF fusing wheel odometry and IMU into `/odometry/local` (`odom -> base_footprint`).
 * **Nav2 Navigation Stack:**
-  * **Global Planner:** NavFn A* finding optimal global paths on `/rtabmap/map`.
+  * **Global Planner:** NavFn A* finding optimal global paths on the global costmap (using `/rtabmap/map` as its static layer).
   * **Local Controller:** DWB Controller with tuned rotational limits and slowing factors for reliable in-place spot turns on complex terrain.
-  * **Dynamic Costmaps:** 2-layer costmaps with `/obstacles` marking and `/ground` raytrace clearing to eliminate transient phantom obstacles.
+  * **Dynamic Costmaps:** Multi-layer costmaps (global with static, obstacle, and inflation layers; rolling local with obstacle and inflation layers) featuring `/obstacles` marking and `/ground` raytrace clearing to eliminate transient phantom obstacles.
 
 ---
 
