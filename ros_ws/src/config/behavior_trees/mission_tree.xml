@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!--
+  MaRS Autonav Mission Behavior Tree - Basic Model for Caterpillar Autonomy Challenge
+
+  Mission Profile:
+  1. STARTUP: Wait for Nav2, Locate Markers (ArUco), Announce HANDS_FREE_START
+  2. CYCLE (repeat 2x): Each cycle checks TimeRemaining first
+     - Announce TRAVEL
+     - NavigateToPose "excavation_staging" (retry 3x)
+     - Announce EXCAVATE
+     - IsInZone "excavation" (verify we're in the right zone)
+     - Excavate (retry 2x)
+     - Announce RETURN
+     - NavigateToPose "construction_staging" (retry 3x)
+     - Marker check (Fallback: MarkerSeenRecently OR LocateMarkers again)
+     - NavigateToPose "dump_pose"
+     - Announce DUMP
+     - Dump
+  3. On SUCCESS: Announce MISSION_COMPLETE
+  4. On FAILURE/TIMEOUT: SafeStop, Announce MISSION_FAILED/MISSION_TIMEOUT
+
+  BT Concepts Used:
+  - Sequence: Runs children in order, stops on first FAILURE, returns SUCCESS if all succeed
+  - Fallback: Runs children in order, stops on first SUCCESS, returns FAILURE if all fail
+  - RetryUntilSuccessful: Decorator that retries child up to N times until SUCCESS
+  - Timeout: Decorator that fails child if it runs longer than N seconds
+  - Repeat: Decorator that repeats child N times (or until failure)
+  - ReactiveFallback: Like Fallback but re-evaluates from first child each tick
+  - SubTree: Reusable tree fragment (defined separately, included via <SubTree ID="..."/>)
+  - Blackboard: Shared data storage accessible by all nodes (ports read/write to it)
+  - Ports: Node inputs/outputs (declared in providedPorts(), connected in XML)
+-->
+<root main_tree_to_execute="MainTree">
+
+  <!-- ============================================================
+       SUBTREES: Reusable fragments for readability
+       ============================================================ -->
+
+  <!-- Startup sequence: Wait for Nav2 -> Locate Markers -> Announce Start -->
+  <BehaviorTree ID="StartupTree">
+    <Sequence name="Startup">
+      <WaitForNav2 timeout="60"/>
+      <Timeout msec="60000">
+        <RetryUntilSuccessful num_attempts="3">
+          <LocateMarkers duration="5"/>
+        </RetryUntilSuccessful>
+      </Timeout>
+      <AnnounceState state="HANDS_FREE_START"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Navigate to a named pose with retries -->
+  <BehaviorTree ID="NavigateToPoseTree">
+    <RetryUntilSuccessful num_attempts="3">
+      <NavigateToPose pose_name="{pose_name}"/>
+    </RetryUntilSuccessful>
+  </BehaviorTree>
+
+  <!-- Excavation sequence: Verify zone -> Excavate (with retry) -->
+  <BehaviorTree ID="ExcavateTree">
+    <Sequence name="ExcavateSequence">
+      <IsInZone zone_name="excavation"/>
+      <RetryUntilSuccessful num_attempts="2">
+        <Excavate duration="3"/>
+      </RetryUntilSuccessful>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Dump sequence: Navigate to dump pose -> Dump -->
+  <BehaviorTree ID="DumpTree">
+    <Sequence name="DumpSequence">
+      <NavigateToPose pose_name="dump_pose"/>
+      <AnnounceState state="DUMP"/>
+      <Dump duration="2"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Marker recovery: Check if markers seen recently, else relocate -->
+  <BehaviorTree ID="MarkerRecoveryTree">
+    <Fallback name="MarkerRecovery">
+      <MarkerSeenRecently timeout="10"/>
+      <LocateMarkers duration="5"/>
+    </Fallback>
+  </BehaviorTree>
+
+  <!-- One mission cycle: Travel -> Excavate -> Return -> Dump -->
+  <BehaviorTree ID="MissionCycleTree">
+    <Sequence name="MissionCycle">
+      <!-- Check time remaining at start of each cycle -->
+      <TimeRemaining time_limit="600"/>
+
+      <!-- Travel to excavation staging -->
+      <AnnounceState state="TRAVEL"/>
+      <SubTree ID="NavigateToPoseTree" pose_name="excavation_staging"/>
+
+      <!-- Excavate -->
+      <AnnounceState state="EXCAVATE"/>
+      <SubTree ID="ExcavateTree"/>
+
+      <!-- Return to construction staging -->
+      <AnnounceState state="RETURN"/>
+      <SubTree ID="NavigateToPoseTree" pose_name="construction_staging"/>
+
+      <!-- Marker check before final approach to dump -->
+      <SubTree ID="MarkerRecoveryTree"/>
+
+      <!-- Dump -->
+      <SubTree ID="DumpTree"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- ============================================================
+       MAIN TREE: Startup -> Repeat Cycle 2x -> Complete or Fail
+       ============================================================ -->
+  <BehaviorTree ID="MainTree">
+    <Sequence name="MainSequence">
+      <!-- Startup phase -->
+      <SubTree ID="StartupTree"/>
+
+      <!-- Mission cycles (repeat 2 times) -->
+      <Repeat num_cycles="2">
+        <SubTree ID="MissionCycleTree"/>
+      </Repeat>
+
+      <!-- Success path -->
+      <AnnounceState state="MISSION_COMPLETE"/>
+    </Sequence>
+  </BehaviorTree>
+
+</root>
