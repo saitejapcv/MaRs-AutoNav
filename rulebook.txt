@@ -1,0 +1,551 @@
+Welcome to the Caterpillar Autonomy Challenge!
+The mission of your robot system is to provide a berm that protects astronauts and habitat modules
+from plume ejecta from vehicles lifting off and landing on the opposite side of the berm to be
+constructed. For this competition, plume ejecta is presumed to move perpendicular to the surface
+and parallel to the short axis of the berm area. Both mass (or volume) of the berm and the projected
+area of the berm normal to the plume ejecta provide this protection.
+
+ARENA SPECIFICATIONS AND PROTOCOL
+Specifications:
+1. The arena measures approximately 9 m × 5 m and contains ~30 cm depth of tilled, dry sand.
+2. Obstacle Zone - The judges will attempt to construct the obstacle field in such a way as to require obstacle
+detection, mapping, and navigation planning to determine a “slalom” route to reach the excavation zone.
+3. At least three randomly placed boulder obstacles will be present in the obstacle zone before each run.
+Boulders are approximately 30–40 cm in diameter with varying heights. Similar or smaller boulders may also
+be present in the excavation zone.
+4. At least three craters of varying depth and up to 40–50 cm width will be present in the obstacle zone.
+5. Beacon and marker mounting requirements for navigation are provided in the final section of this document.
+6. The arena diagram is strictly for reference. The exact location of rocks and craters may not be the same during
+the actual competition runs.
+
+Arena Protocol:
+1. Once competition runs begin, the Arena becomes a restricted operational area.
+2. Students must promptly follow all instructions from the Arena Chief and Arena personnel. Faculty/advisors
+are prohibited from entering the Arena during competition.
+3. No entry into the Arena is permitted during a run except in emergencies.
+4. Finalist teams will be assigned booths for setup and final modifications.
+
+5. Teams may enter the Moon Yard Arena staging area only when authorized by the Arena Chief. Approaching the
+Arena before authorization is prohibited.
+6. For Arena operations, the active team is strictly limited to a maximum of 4 members for robot setup/removal
+and a maximum of 4 members for Mission Control.
+7. Teams will receive a Pre-Task Briefing (PTB) with run-specific information before entering the Arena.
+8. When directed, teams must place their robot in the Arena and establish communication with the MCC. Robots
+will start from a randomly assigned position and orientation. Positive and negative obstacles (e.g., boulders
+and craters) must be avoided and are not traversable.
+9. Team members shall remain with their robot in the designated Arena staging area until directed otherwise by
+the Arena Chief or designated representative.
+10. Teams must promptly exit the Arena when setup is complete or when instructed by Arena personnel.
+11. At the end of the run, teams must promptly retrieve all robots and equipment from the Arena.
+12. Student cell phones, cameras, tablets, and other restricted electronics devices brought into the Moon Yard
+Arena shall be placed on the Arena Chief’s station to be retrieved later. No exceptions.
+
+ROBOTS AND ROBOTIC OPERATIONS
+Robots:
+1. Berm construction requires teams to consider several design and operation factors such as efficient
+communications, minimizing vehicle mass, minimizing energy/power required, and maximizing autonomy.
+2. Components (i.e. electronic, mechanical, etc.) are not required to be space qualified for atmospheric,
+electromagnetic, thermal, or Lunar environments.
+
+Robot Requirements:
+1. Volumetric dimensions — Robot(s) shall be contained within a payload envelope measuring 1.5 m length ×
+0.75 m width × 0.75 m height. The orientation of these dimensions may be chosen by the team.
+2. The robot may deploy or expand beyond the envelope after the start of the attempt but shall not exceed 1.75
+m in additional height (vertically). Multiple robot systems are allowed, but the starting dimensions of the
+whole system (all robots combined) shall comply with the volumetric dimensions given in this rule.
+3. Robots will be inspected for volumetric dimensions in the stowed configuration during the Safety Inspection.
+No modifications or team interaction with the robot is permitted during this verification. Teams may make
+modifications after inspection, but the robot must be re-inspected before approval for participation.
+a. Robot Mass — Maximum mass: 80 kg. Subsystems/equipment on the robot used to transmit
+commands/data and video to telerobotic operators are counted toward the mass limit. The mass of the
+navigational aid system, including any beacons or targets not attached to the robot, is included in the
+maximum robot mass limit and must be self-powered.
+b. Equipment not on the robot used to receive data from and send commands to the robot for telerobotic
+operations is excluded from the mass limit. Multiple robot systems are allowed, but the total mass of the
+whole system shall comply with the mass limit given in this rule.
+4. External robot antennas are recommended to reduce potential interference problems.
+5. The robot may intentionally separate itself if desired, but all parts of the robot must remain under the team’s
+control at all times. Unintentional breakage will not be counted against the team. The robot does not need to
+reassemble before the end of the competition run.
+6. The robot may operate either by telerobotic control (LOS or NLOS) or autonomously and cannot use touch
+sensors to sense or avoid obstacles.
+7. Teams are required to confirm the forward position of the robot, as the facing direction at the start of the run
+will be decided on the spot by the judges.
+8. Teams may use honeycomb structures provided they are strong enough to be safe and the edges are sealed to
+prevent dust intrusion. Wheels with large honeycomb structures open on both sides are allowed as long as the
+edges are not sharp enough to create a cutting hazard.
+9. Teams may not use GPS, rubber pneumatic tires, ultrasonic proximity sensors, or hydraulics. Use of these will
+result in failure during inspection.
+
+10. Closed pneumatic systems are allowed if the gas is supplied entirely by the robot itself and remains selfcontained.
+
+E-STOP Button:
+1. Also known formally as an emergency brake, emergency stop (E-STOP), emergency off (EMO), kill switch, or
+emergency power off (EPO), it is a safety mechanism used to shut off machinery in an emergency when it
+cannot be shut down in the usual manner. The E-STOP function shall override all other robot controls and
+commands when actuated.
+2. The E-STOP should be unobstructed, with no collars or actuation restrictions, and easily accessible without
+reaching over, under, or around components to actuate it (Indian machinery safety standards, IS 16818:2018
+(Safety of Machinery — Emergency Stop Function, identical to ISO 13850:2015) and IS/IEC 60947‑5‑5:2016)
+3. A second deliberate action shall be required to reset the E-STOP, such as pressing a reset button, twisting the
+mushroom button until it springs back up, or pulling the button back up. It must not reset automatically.
+4. The robot shall be equipped with an E-STOP button. An unmodified “Commercial Off-The-Shelf” (COTS) red
+button is required. Teams must use sound engineering practices while placing and securing the E-STOP button
+on the robot(s); failure to do so may result in safety disqualification. The E-STOP button shall have a minimum
+diameter of 40 mm and require no additional steps to access.
+5. Disabling the E-STOP button without authorization from the Staff shall result in safety disqualification.
+6. There shall be only one E-STOP button per robot and, in the case of multiple robots, each robot shall have its
+own E-STOP button.
+7. The E-STOP button shall stop the construction robot’s motion and disable power with a single push motion. It
+shall operate reliably and instantaneously. A closed control signal to a mechanical relay is allowed, provided it
+remains open to disable the robot. (Compliance with these requirements is reinforced under the Machinery
+and Electrical Equipment Safety (Omnibus Technical Regulation) Order, 2024, issued by the Government of
+India.)The button shall disconnect the batteries from all controllers (high-current forklift-type button) and
+isolate the batteries from the rest of the active subsystems.
+8. Only onboard laptop computers may remain powered on if powered by their own independent internal
+battery. For example, a small onboard battery powering only a Raspberry Pi control computer is acceptable,
+provided its power does not flow through the main robot E-STOP button.
+
+Power Meters / Data Loggers:
+1. The robot shall provide its own onboard power. No external (facility) power will be provided during the
+competition attempt. There are no specific power limitations; however, the robot must be entirely selfpowered, and all power sources must be included within the maximum allowable mass.
+2. Any monitoring or logging devices must be schematically placed between the battery and the kill switch to
+ensure that data is preserved even if the E-STOP button is activated. A 30-point reduction to Berm
+Construction Productivity – Normalized for Energy (BCP Energy) will be applied if the robot is not wired in
+accordance with this requirement. This will be checked during Inspection. Teams also risk scoring zero if the
+E-STOP must be triggered while the robot is improperly wired.
+3. These devices must also be mounted at the highest practical location on the robot and remain clearly visible
+for inspection and monitoring purposes.
+4. Energy consumption shall be recorded using a “Commercial Off-The-Shelf” (COTS) electronic data logger
+device. Actual energy consumed during the attempt shall be shown to the judges on the data logger
+immediately after the attempt (“immediate” includes the time required for the judge to enter the arena, locate
+the logger, and record the reading).
+5. If the logger is independently powered, the robot may be remotely powered off after the run.
+6. Although acceptable, this is not recommended in situations where the robot may need to complete an
+operation before removal from the arena.
+7. An example is the PZEM-051 DC Digital Ammeter Voltmeter:
+PZEM-051DC Multifunction Battery Monitor Meter LCD Display DC 6.5-100V Digital Current Voltage Sola...
+8. If a laptop is used on-board the rover, the power usage during an attempt must be measured through logs
+from a hardware monitor program for example HWiNFO:
+SDK | HWiNFO
+
+Battery Protocol:
+
+1. Battery containers must be designed for the safe storage, charging, and transportation of lithium-ion batteries
+or approved equivalents (applicable to the Lithium-Ion / Ni-Cad batteries used in the robots).
+2. Batteries must be stored in upright containers and must not come into contact with each other. Batteries that
+have been dropped must be inspected for damage and replaced if necessary. Batteries that are hot to the touch
+after charging must not be stored.
+3. To ensure the robot is suitable for an actual mission, it must not employ any fundamental physical processes,
+gases, fluids, or consumables that would not function in an off-world environment. For example, dust removal
+from a lens or sensor must use a physical process suitable for the lunar surface.
+4. Teams may use processes requiring an Earth-like environment (e.g., oxygen or water) only if the system using
+those processes is designed to function in a lunar environment and if all such resources are included within
+the robot’s mass.
+5. The rules are intended to encourage robots that demonstrate plausible off-world system functionality;
+however, components do not need to be traceable to off-world-qualified versions. Examples of allowable
+components include Sealed Lead-Acid (SLA) or Nickel Metal Hydride (NiMH) batteries, composite materials,
+rubber or plastic parts, actively fan-cooled electronics, brushed motors, infrared sensors, inertial
+measurement units, and Hall Effect sensors. Teams may use these at their own risk.
+6. If a battery continues to feel hot after charging, if possible, remove from the building and place outside and
+notify a member of event staff as a nonemergency issue.
+7. Teams shall immediately notify designated safety personnel of any fire, smoke, battery malfunction, or other
+condition presenting an immediate safety hazard.
+
+Robotic Operations:
+1. The robot cannot be anchored to the sand prior to the beginning of the demonstration.
+2. At the start of the competition run, the mining robot may not occupy any location outside the defined starting
+position in the arena.
+3. The mining robot may not penetrate the sand surface with more force than the weight of the robot before the
+start of the competition attempt.
+4. No ordnance, projectiles, far-reaching mechanisms, or similar systems may be used. The mining robot must
+move on the sand surface.
+5. In this context, a far-reaching mechanism does not include deployed or extended components allowed under
+the dimensions rule, provided they do not violate this rule.
+6. The robot must operate within the Arena; it is not permitted to pass beyond the confines of the outside
+perimeter of the arena or hit the walls during the competition run. In the event of the robot ramming the
+walls, a point penalty 50pts will be levied for twice. The third time it happens, the run will be cancelled.
+7. If a robot separates, wall ram penalties apply collectively. The entire system (all parts combined) shares the
+maximum limit of two allowed wall rams before run cancellation.
+8. The robot may not use any process that changes the physical or chemical properties of the sand or otherwise
+affects uniformity for the competition attempts. The mining robot may not penetrate the sand surface with
+more force than its own weight.
+
+SCORING, NAVIGATION, CONSTRUCTION
+Scoring:
+Construction Points:
+1. Pass All Inspections (Comm/Vehicle) - Each team must complete a mandatory mechanical inspection and
+communications check after check-in and before their first run. Failure to pass either will disqualify the robot
+from entering the Arena.
+2. A volumetric scan before and after the run will be performed. Only the berm volume within the target berm
+location will be counted.
+3. Construction Berm Productivity – Normalized for Robot Mass (BP Mass) – The team will earn
+construction points for each cubic cm of berm constructed above grade per minute per each kg of the robot’s
+mass. There is no restriction on the shape, height, or number of berms constructed.
+
+BCP-mass =
+
+𝑉𝑜𝑙𝑢𝑚𝑒 𝑜𝑓 𝑏𝑒𝑟𝑚 𝑤𝑖𝑡ℎ𝑖𝑛 𝑡𝑎𝑟𝑔𝑒𝑡 𝑧𝑜𝑛𝑒
+𝑅𝑢𝑛 𝑡𝑖𝑚𝑒 𝑖𝑛 𝑚𝑖𝑛𝑢𝑡𝑒𝑠 * 𝑅𝑜𝑏𝑜𝑡 𝑚𝑎𝑠𝑠 𝑖𝑛 𝑘g
+
+Score = BCP - Mass
+4. Construction Berm Productivity – Normalized for Energy (BP Energy) – The team will earn construction
+points for each cubic cm of berm constructed above grade per minute per each watt*hr of energy consumed.
+The electrical energy consumed must be displayed by an (commercial off the shelf or “COTS”) electronic data
+logger and verified by a judge.
+BCP-energy =
+
+𝑉𝑜𝑙𝑢𝑚𝑒 𝑜𝑓 𝑏𝑒𝑟𝑚 𝑤𝑖𝑡ℎ𝑖𝑛 𝑡𝑎𝑟𝑔𝑒𝑡 𝑧𝑜𝑛𝑒
+𝑅𝑢𝑛 𝑡𝑖𝑚𝑒 𝑖𝑛 𝑚𝑖𝑛𝑢𝑡𝑒𝑠 * 𝐸𝑛𝑒𝑟𝑔𝑦 𝑖𝑛 𝑤𝑎𝑡𝑡*ℎ𝑟
+
+Score = BCP - Energy
+5. Camera bandwidth Use - During the competition attempt, the team will be scored on arena-camera usage as
+follows:
+a. No cameras = +120
+b. 1st camera = 120-60 (up to 60 consecutive seconds of viewing)
+c. 2nd camera = 120-2(60) points (arena camera allowed for the rest of the run)
+Any no. of cameras can be used on the bot without penalty and time restrictions.
+Teams are responsible for managing their own network connectivity. Wi-Fi access will not be provided by the
+organizing committee.
+
+Construction Protocol:
+1. The robot will be inspected before the competition attempt. No robot modifications can be made between
+inspection and competition run. Teams will be permitted to repair or otherwise modify their robots while the
+RoboPits are open. Teams are responsible for the placement and removal of their robot onto the arena
+surface.
+2. There will be two rounds:
+Prelims: Each team is allowed up to 5 minutes to place the construction robot in its designated starting
+position within the arena and perform required setups from MCC, 10mins to run the robot, and 5 minutes to
+remove the robot after the attempt has ended as directed by the Construction Judges. The prelims will consist
+of a single competition attempt per team.
+Finale: Each team is allowed up to 7 minutes to place the construction robot in its designated starting
+position within the arena and perform required setups from MCC, 15mins to run the robot, and 5 minutes to
+remove the robot after the attempt has ended as directed by the Construction Judges. The Finale will consist of
+a single competition attempt per qualifying team.
+3. The robot’s starting direction and location will be randomly selected immediately before the competition
+attempt.
+4. Electrical energy consumed must be displayed by a COTS electronic data logger and verified by a judge.
+5. The robot shall move from the starting area, across the obstacle zone, and into the excavation zone. The robot
+shall not acquire sand for the berm from inside the starting area, obstacle zone, or construction zone. All the
+sand for berm construction must be acquired from the excavation zone.
+6. The robot shall not move any obstacles and avoid the craters (it shall not fill in any craters) in the obstacle
+zone. in the obstacle zone.
+7. The obstacles may be pushed or craters maybe disturbed as needed ONLY in the construction/excavation
+zone.
+8. The robot may start excavation or construction operations as soon as any part of it crosses into the excavation
+or construction zone respectively.
+
+9. The robot can separate itself intentionally if desired, but all parts of the construction robot must be under the
+team’s control at all times. The robot does not have to re-assemble prior to the end of the competition run.
+10. The robot shall not:
+a. Be anchored to the arena surface prior to the beginning of the competition attempt.
+b. Ram the wall (may result in a safety disqualification).
+c. Use any aspect of the arena (wall, structure, column, etc.) in attempting any operations.
+d. Use any process that causes the physical or chemical properties of the sand to be changed or otherwise
+compromises the uniformity.
+11. Bulldozing sand from the excavation zone to the construction zone is not allowed. The sand is to be carried
+from excavation to the construction zone. Even a small lift is enough. It must be made sure not to drag the
+sand along the arena.
+12. The robot shall end operations immediately when the power-off command is sent and/or as instructed by the
+Construction Judge. After the official competition run ends, the Sand judge will determine if the robot needs to
+move prior to being removed. The judge will instruct the team members when they can enter to remove the
+robot.
+13. Obstacles may not be moved into the excavation zone.
+
+Navigation Protocol:
+1. Teams must declare their robot's orientation to the inspection judge using three clearly marked, nonconflicting arrows (permanent marker is acceptable) to indicate length (Arrow 1), width (Arrow 2), and a
+designated "forward" starting direction (Arrow 3). Arrow 3 can be placed anywhere and point in any direction
+(except straight up or down) and does not dictate the robot's actual driving path; it serves solely as a reference
+point for judges to align the robot (North, South, East, or West) according to the pre-run random direction
+spin.
+2. Compasses (analog, digital), Global Positioning Satellite (GPS) or IMU-enabled GPS devices are not allowed.
+Teams must explain to the judges how the device will be switched off or the data will be subtracted and ensure
+the internal calculations, do not make use of the GPS or IMU-enabled GPS device.
+3. The mass of the navigational aid system is included in the maximum construction robot mass limit of 80.0 kg
+and must be self-powered.
+4. Inertial measurement units (IMU) are allowed on the construction robot. Teams have to explain to the judges
+how the compass feature will be switched off, or the compass data is subtracted to ensure the internal
+calculations do not make use of the compass (from any magnetic field surrounding the robot).
+5. During the competition attempt, the construction robot is limited to autonomous and telerobotic operations
+only. LINE-OF-SIGHT OPERATION IS NOT ALLOWED.
+
+Autonomy Rules:
+1. Telemetry to monitor the health of the construction robot is allowed during the autonomous period. Teams
+will need to remain “hands free” during their attempts at autonomy points. Teams shall explain to the
+inspection/ attending judge before each competition run how they are interacting with the telemetry system,
+and the judge will observe to ensure compliance with all competition rules.
+2. Teams shall not touch the controls during the autonomous period. Orientation data cannot be transmitted to
+the construction robot in the autonomous period. See complete details in the MCC and Autonomous
+Operations.
+3. The walls shall not be used for the purposes of mapping autonomous navigation and collision avoidance
+(there are no walls on off-world locations). Touching or having a switch sensor spring wire that may brush on
+a wall or any other surface as a collision avoidance sensor is not allowed (this includes touch sensors). Teams
+shall not use the walls of the construction arena for sensing by the robot to achieve autonomy.
+4. The team must explain to the inspection judges how their autonomous systems work and prove that the
+autonomy sensors do not use the walls (there are no walls in off-world locations, and teams shall operate as
+closely as possible in that scenario of operations). Integrity is expected of all team members and their faculty
+advisors.
+5. Teams are allowed to interact with an interface that allows different pieces of telemetry data to be viewed as
+long as there is no real-time or other interaction to control or influence the robot.
+6. Teams are not permitted to update or alter the autonomy program to account/detect or upload information
+about obstacle locations
+
+7. Failure to divulge the method of autonomy sensing shall result in disqualification from the competition.
+
+Autonomous Operations:
+Teams can earn up to 600 autonomy points for their attempt. It is the sole responsibility of the team members in
+the control room to coordinate with and inform the MCJ of their attempt for autonomy points to make sure their
+autonomous attempts are recognized and therefore scored correctly. A tie in autonomy points relative to the
+Caterpillar Autonomy Award will be broken based on the total berm construction points.
+ATLEAST ONE LEVEL OF AUTONOMY MUST BE EXECUTED
+
+General Rules:
+1. During hands-free operation, no team member may interact with control devices or equipment, except for
+arena camera controls.
+2. Teams must clearly announce the start and completion of each autonomy cycle.
+3. Failed autonomy attempts must be announced before switching to manual control.
+4. Teams must successfully execute at least one autonomy level to earn autonomous construction points.
+
+Telerobotic Operations (NLOS) - 0 points:
+Non Line‑of‑Sight (NLOS) Telerobotic Operations allow teams to operate their construction robot remotely without
+direct visual contact . When operating entirely in NLOS:
+1.
+2.
+3.
+4.
+
+No autonomy points shall be awarded during NLOS Telerobotic Operations.
+Teams will earn Construction Berm Productivity points only and all applicable penalties will be assessed.
+Any interaction with robot controls during the autonomous attempt confirms the attempt as non-autonomous.
+Switching from NLOS operation to autonomy during a run is permitted only if the team clearly announces the
+start of an autonomy attempt to the Mission Control Judge (MCJ), and all requirements for the corresponding
+autonomy level are met from that point onward. If no such declaration is made, the entire run will be scored as
+NLOS Telerobotic Operations only.
+
+Excavation automation -75 points, Dump automation - 50 points
+1. Teams are allowed to traverse to the Excavation Zone or the Construction zone via remote control for
+Excavation and Dump automation respectively.
+2. Once in the Excavation zone or prior to crossing into the Construction zone, they must indicate to the judges
+that they are going hands-free for the excavation attempt for Excavation or Dump automation respectively.
+3. The team should be strictly “hands-free” during their excavation or dump for Excavation and Dump
+automation respectively. Failure to do so will not result in addition of this score to the final score.
+4. Excavation mechanisms must be completely removed from contact with the sand before returning to remote
+control operation for Excavation Automation.
+5. Once excavation or dumping is complete the team must indicate they are going to remote control before taking
+control of their robot for Excavation or Dump automation respectively.
+6. To earn Excavation or Dump Automation points, the robot must perform the respective tasks autonomously at
+least onetime it excavates or dumps during the competition run.
+
+Travel Automation: 250 points:
+1. Teams may begin with remote control and move the robot within the starting zone only to “lock” in their
+localization solution.
+2. The teams must then indicate to the judges that they are going into hands-free mode while still in the starting
+zone.
+3. The robot must remain in hands-free mode while crossing the obstacle field and crossing into the excavation
+zone. The robot must start in the starting zone and remain hands-free until any part of the robot has crossed
+into the excavation zone.
+
+4. Teams must announce they are going hands-free the moment the robot crosses the excavation zone and must
+remain hands-free until the robot has successfully crossed into the construction zone.
+5. Teams will be awarded Travel Autonomy points only if the robot successfully completes one full cycle of the
+above hands-free traversals.
+6. This level of automation will require the team to master the following
+a. Localization across the entire competition arena.
+b. Object detection and location relative to the robot.
+c. Navigational planning based on location and obstacles/traversable area.
+7. The teams should not architect a “Point and traverse” approach for this automation step.
+8. If the robot comes in contact with a rock or drives across a crater in the obstacle zone, as determined by the
+MCJ/Arena judges, a 30-point reduction will be applied. This is a one-time penalty.
+9. For maximum points, the attempt must be made at the start of the run when first leaving the starting zone. In
+order to discourage the approach of “breadcrumbs”, a penalty of 50 points will be applied to any attempt that
+occurs after traversing the obstacle zone in remote control.
+10. If multiple attempts are made, this penalty will only be assessed one time to the successful attempt.
+11. If attempting excavation and dump automation in coordination with travel automation, the robot must remain
+in “hands-free” control during travel and excavation.
+Example: Robot crosses the obstacle course in remote control before the attempt, hits an obstacle, and drives
+across a crater during the attempt. 250 points – 50 – 30= 170 points.
+
+Full Autonomy:
+1. The robot must complete one full cycle in hands-free control.
+2. The attempt must begin at the start of the run.
+3. Teams may use remote control only within the starting zone for localization. The robot must then operate
+autonomously through traversal, excavation, return, construction-zone entry, and sand dumping. A discernible
+amount of sand must be deposited at the berm location, as determined by the MCJ.
+4. Contact with a rock or crossing a crater in the obstacle zone incurs a −30 point penalty per occurrence, capped
+at −90 points. No penalties apply in the excavation zone.
+5. Successful completion requires full autonomous operation across all competition tasks.
+6. Completing one full cycle as described awards 450 points, after which the team may return to remote control.
+To earn the full 600 points, the robot must complete at least two full cycles, remain in hands-free control for
+the entire competition run, and successfully achieve berm construction points as determined by the
+volumetric scan.
+
+MCC AND AUTONOMOUS OPERATIONS
+MCC:
+Teams will control or autonomously operate their robot from the MCC to simulate operations of a Lunar In-Situ
+Resource Utilization (ISRU) construction mission. A Mission Control Director (MCD) will serve as the Lead Judge for
+the MCC to maintain the integrity of MCC rules outlined in the guidebook and ensure consistent interpretation and
+enforcement for all teams.
+
+General guidelines:
+1. A maximum of 4 team members may enter the MCC, and all must enter together when authorized.
+2. Faculty/advisors are prohibited from entering the MCC.
+3. Teams must bring all required mission-critical components and spares before entering. Forgotten items may
+not be retrieved later.
+4. Only devices required for robot operations are permitted in the MCC. Extra laptops, phones, smart devices,
+etc., are prohibited.
+5. No external communication is allowed after entering the MCC, except with Arena teammates during setup
+using approved equipment.
+
+6. All rule clarifications must be resolved before entering the MCC. The schedule will not be delayed for late
+requests.
+7. Judges are observers only and will not provide operational assistance or answer mid-run scoring/position
+questions.
+8. MCC and Arena judges may terminate setup or runs for rule violations.
+9. Teams must conduct themselves professionally, as in a real-time space operation.
+10. Teams must operate robots using sound engineering practices.
+11. Rule violations, unprofessional conduct, unsportsmanlike behavior, or failure to follow staff directions may
+result in penalties or disqualification.
+12. Team members must comply with all directions from the MCJ. Disputes with MCJ direction or decisions must
+be elevated through the MCD.
+
+Mission Setup:
+1. Teams may not connect or interact with any equipment in the MCC until the setup period begins.
+2. Teams must indicate competition readiness to the judges as soon as their robot is ready.
+3. During the setup period, the team members will be allowed to talk with the team members in the Arena over a
+phone call. Once the setup time is over, all the phones are to be left outside the MCC before the competition
+run begins.
+4. Arena team members are prohibited from pointing out obstacles, craters, and other arena conditions to the
+MCC team members.
+5. Teams may use the situational awareness cameras during the setup period without penalty.
+
+Mission Operations:
+1. Verbal Autonomy Declaration: Before the robot can switch into "hands-free" autonomous mode, you must
+now loudly and explicitly declare it to the Mission Control Judge (MCJ). Starting without a verbal declaration
+disqualifies your points for that cycle.
+Dump Autonomy Boundary: Control must be handed over to the computer before entering the Construction
+Zone. If you cross into the zone under manual control, you are operationally banned from earning Dump
+Autonomy points.
+2. All autonomy attempts must be “Hands-Free”, meaning no team members are permitted to touch any
+components (e.g., laptops, game controllers) brought into the MCC until the team has declared autonomy
+completion or autonomy failure.
+3. If a team member interacts with any equipment while the robot is still moving or before the team has declared
+the autonomy attempt complete, the team will receive zero points for their attempt.
+4. In the event of an autonomy failure, the team shall announce that the attempt has failed before resuming
+manual control.
+5. It is the sole responsibility of team members in the MCC to communicate effectively with the judges to ensure
+every autonomy attempt is recognized and scored correctly. If the judge Is not notified of the attempt in
+advance of the team initiating its execution, the score will be zero points.
+6. Teams may select a maximum of two out of the three available situational awareness cameras (with penalties).
+During autonomy attempts, these selected cameras may be manipulated, but adjustments are strictly limited
+to a fixed set of pre-defined angles.
+7. Telerobotic operators are only allowed to use data and video originating from the robot and the competition
+video monitors.
+
+Mission Anomalies:
+1. Once the competition timer has started, the robot has 5 minutes to move on the mission. If the robot has not
+moved by the 5-minute mark, the robot is considered inoperable, and the run will end.
+2. As responsible engineers, the team should notify the judges that they are ending the run if their robot
+experiences an unrecoverable issue that renders it incapable of executing key mission tasks. Such failures
+include:
+a. Loss of Comm: The robot is functional but can no longer communicate properly with the MCC.
+
+b. Loss of Locomotion: The robot ceases movement or experiences infrequent, non-continuous movements
+for a period of 5 minutes.
+c. Loss of Excavation: The robot can no longer acquire sand per its design.
+d. Loss of Deposition: The robot can no longer offload sand per its design.
+e. Loss of Robot: The robot is fully unable to execute the mission. This scenario could be due to technical
+issues or unfavorable interactions with the competition arena.
+3. In the event a robot experiences a mission-ending anomaly and the team does not voluntarily end the run
+within a reasonable amount of time, MCC and Arena judges have the authority to terminate the attempt.
+“Reasonable” is at the judge’s discretion based on the specific circumstances of the run. Teams “joyriding” or
+otherwise wasting competition time may be assessed penalty points. Mission Control and Moon Yard Arena
+judges may terminate the run if it is not ended promptly
+4. Teams must efficiently communicate to the MCJ of procedures (like full system resets) that make the robot
+appear inoperable; failure to communicate risks run termination.
+
+Mission Conclusion:
+1. All robot operations must stop when the competition timer expires. Ongoing autonomous actions must be
+inhibited immediately, except active sand dumping already in progress may be completed.
+2. Teams may not disconnect communications or dismantle MCC equipment until authorized by judges, as the
+robot may still need to relocate or unload sand.
+3. Teams must remain in the MCC until dismissed by the judges.
+4. Teams are responsible for removing all equipment brought into the MCC. Forgotten items may not be retrieved
+once the next team’s run has begun.
+
+Communication System Requirements:
+1. Use a standard IEEE 802.11 dual-band router supporting both 2.4 GHz and 5 GHz operation. The 2.4 GHz band
+must be capable of being disabled.
+2. Use the competition-assigned SSID provided during check-in for all wireless equipment.
+3. Broadcast the assigned SSID; hidden networks are not permitted.
+4. Enable wireless encryption (WPA2 or WPA3).
+5. Transmit only on the assigned SSID.
+6. Set the 2.4 GHz channel bandwidth to 20 MHz only (channel bonding is prohibited).
+7. Ensure all wireless equipment complies with WPC regulations and legal transmit power limits.
+8. Do not use external power amplifiers on any wireless system; their use is illegal and results in disqualification.
+9. Bluetooth devices operating in the 2.4 GHz band are permitted for sensors and robot communications only if
+they are Class 2 or Class 3 devices (maximum 2.5 mW EIRP).
+10. Class 1 Bluetooth devices are not allowed.
+11. Zigbee/IEEE 802.15.4 technology operating at 2.4 GHz is prohibited due to interference concerns.
+12. Communication systems using other ISM frequency bands (e.g., 900 MHz or 5 GHz) are permitted but will not
+be monitored for interference during the competition.
+13. Teams using unmonitored frequency bands are solely responsible for managing interference issues; such
+issues cannot be used as grounds for protest.
+14. Teams may use 5 GHz Wi-Fi for WAP-to-robot communications during competition.
+15. Interference on 5 GHz communications will not be monitored and cannot be used as grounds for a protest or
+rematch.
+16. The communication link must maintain an average data utilization bandwidth of no more than 4,000 Kbps.
+17. No peak data utilization bandwidth limit is imposed.
+
+Regulations on Mounting Beacons and Markers:
+Teams must follow the guidelines below to ensure fair and normalized runs across all participants.
+
+General Guidelines:
+1. Beacons/markers must be placed during the designated setup period (10 minutes).
+
+2. They must be removed promptly after the run during the takedown period (5 minutes).
+3. No pre-placed markers or static reference objects may exist outside designated zones.
+4. No real-time software updates may be made using external observations while the rover is operating
+autonomously or navigating using markers/beacons.
+5. Marker-based navigation must operate fully autonomously once the robot is started. This means:
+a. No real-time commands based on human observation of markers.
+b. No human-in-the-loop interpretation (e.g., reading a QR code and sending commands manually).
+c. The robot must independently detect, interpret, and respond to markers using onboard systems such as
+computer vision and autonomous logic.
+6. All markers/beacons must be:
+a. Clearly visible and identifiable.
+b. Constructed using non-sharp, non-glare materials.
+7. Reflective materials (e.g., mirror tape) are permitted only after approval during inspection.
+8. Teams must declare all beacons/markers to the inspection authority and demonstrate safe operation.
+9. All wireless equipment must comply with India’s Wireless Planning & Coordination (WPC) regulations.
+10. Teams are responsible for placing beacons/markers at valid locations approved by judges. Participants are
+advised to bring tripods or poles according to arena dimensions. The organizing team is not responsible for
+creating beacon placement infrastructure.
+11. Compliance with all beacon and marker placement rules is mandatory. Failure to comply will result in the
+rover being disallowed from running.
+12. Target beacons may be mounted in the starting area using the provided mounting system or rods pushed into
+the sand. Passive fiducials (e.g., AprilTags, ArUco markers) are allowed.
+13. Beacons may transmit signals, light beams, or use laser-based detection systems. Only Class I, Class II, or lowpower (<5 mW) lasers are permitted, and eye-safe documentation must be provided during inspection.
+14. Beacons total mass counts toward the robot's 80 kg mass limit and they must be self-powered.
+15. Beacons or fiducial targets may be attached only to the designated arena frame area for navigation purposes.
+The designated area includes any point on the bin frame structure along the perimeter of the starting zone (2
+sides). Tape, clamps, or rods pushed into the sand may be used, but screws or fasteners requiring holes are
+prohibited. The navigational aid system must be attached during setup time and removed during takedown
+time.
+
+Beacon and Marker Placement:
+1.
+2.
+3.
+4.
+5.
+
+There is no limit on the number of beacons and markers that can be placed in the starting zone.
+beacons or markers can only be placed on the wall attached to the starting zone.
+All markers must be placed within 60 cm of height.
+Teams are not permitted to have multiple ArUco tags, AprilTags, QR codes, etc., on the same marker.
+The mounting of beacons or marker placement must not damage or disturb the arena. Only easily removable
+markers are permitted.
+6. The maximum allowable dimensions for each individual marker are 25 cm x 25 cm.
+7. Teams may choose to use both markers and beacons at the same time.
+
+

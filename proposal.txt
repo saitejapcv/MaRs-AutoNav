@@ -1,0 +1,2791 @@
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Caterpillar Autonomy Challenge: Navigation
+and Autonomy Solution Proposal
+For the MaRS Autonavigation team discussion. Stack: ROS 2 Humble, Nav2 and RTAB-Map
+SLAM running together, a ZED 2i stereo camera plus IMU and wheel encoders, ArUco
+markers as the only absolute reference (detector and marker pose by the imageprocessing team), and a claw that drops from underneath the rover to pick up sand. This
+is revision 3 (updated for a skid-steer base), simplified after review: custom nodes that
+RTAB-Map or the behavior tree already cover were removed. Numbers marked
+assumption must be measured on the real robot.
+
+Proposed solution at a glance
+What we will build. A four-wheel skid-steer rover (ros2_control differential drive) that
+runs RTAB-Map SLAM and Nav2 together on a ZED 2i. Tuned ZED visual-inertial odometry,
+fused with wheel speed and the ZED gyro in ekf_local , carries the pose across the
+arena. ArUco markers near the start corner correct the map at the start and again on the
+return. Boulders come from obstacles_detection , Nav2 (Smac Lattice planner,
+Regulated Pure Pursuit, edited behavior tree) drives, and a small Python mission tree runs
+the loop: find markers, travel, claw, return, release, repeat. Only four pieces are custom;
+everything else is existing software.
+How a run goes.
+1. Setup (10 minutes): place the tags on the frame, start all nodes with a fresh RTAB-Map
+database, check the ZED and the wheel odometry.
+2. Lock: the operator may drive the rover by remote control inside the start zone only, to a
+clear spot and a heading where markers are visible; RTAB-Map records them. Then the
+team declares hands-free to the judge.
+3. Anchor: the arena anchor publishes map -> arena from marker 0, and the zones are
+loaded from one YAML file.
+4. Travel (250 points): the mission tree sends Nav2 to the excavation staging pose; Nav2
+plans a slalom around boulders and craters it sees.
+5. Excavate (75 points): inside the excavation zone only, the claw drops, grabs sand and
+lifts.
+6. Return: the mission tree navigates to the construction zone, markers come back into
+view and RTAB-Map corrects the pose, then a short move to the dump pose.
+
+Page 1 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+7. Dump (50 points): the claw releases the sand on the berm target.
+8. Repeat while time remains (full autonomy, 450 or 600 points). If a step keeps failing,
+stop safely, announce it and keep the points already earned.
+What we know about the rover so far.
+Item
+
+Current knowledge
+
+Drive
+
+Four wheels, skid-steer, ros2_control differential
+drive
+
+Encoders
+
+One per side (left pair, right pair)
+
+Camera and IMU
+
+ZED 2i; its built-in IMU, used as gyro and
+accelerometer only, no magnetometer
+
+Claw
+
+Drops from underneath the rover
+
+Wheelbase and track width
+
+Not measured yet; not needed for the proposal
+
+Start zone
+
+From the rulebook diagram: about 2 m wide and 3.5
+m tall, no rocks or craters; random pose and
+heading
+
+Compute
+
+Not yet stated
+
+Nodes we will use
+The full list, grouped by job. Four are custom (marked custom); the rest are existing
+software configured for our rover.
+#
+
+Node
+
+What it does
+
+Why we use it
+
+Owner
+
+1
+
+ZED ROS 2 wrapper
+
+Publishes
+images, depth,
+point cloud, IMU
+and visualinertial odometry
+
+The ZED 2i is our only
+sensor; one node
+gives everything the
+stack needs
+
+Nav /
+Image
+
+Page 2 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+#
+
+Node
+
+What it does
+
+Why we use it
+
+Owner
+
+2
+
+ros2_control
+controller_manager with
+diff_drive_controller and
+joint_state_broadcaster
+
+Turns cmd_vel
+into left and right
+wheel
+commands,
+publishes wheel
+odometry and
+joint states,
+stops on
+command
+timeout
+
+The team already
+uses ros2_control
+differential drive; it
+supports skid-steer
+through a track-width
+multiplier
+
+Controls
+
+3
+
+robot_state_publisher
+with the URDF
+
+Publishes the
+frames: base,
+ZED, IMU, claw
+
+Every other node
+needs the TF tree
+
+Nav
+
+4
+
+ekf_local
+(robot_localization)
+
+Fuses ZED
+odometry, wheel
+forward speed
+and ZED gyro
+into
+/odometry/local
+and odom ->
+base_footprint
+
+One smooth pose
+source; wheel yaw is
+unreliable on skidsteer, so the gyro and
+ZED supply yaw
+
+Nav
+
+5
+
+ArUco detector
+
+Detects the tags
+and gives their
+ids and poses
+
+The tags are the only
+absolute reference
+allowed
+
+Image
+team
+
+6
+
+Tag adapter and arena
+anchor (custom)
+
+Converts
+detections for
+RTAB-Map if
+needed,
+publishes map ->
+arena from
+marker 0,
+optionally
+publishes a
+virtual arena
+boundary
+
+RTAB-Map's frame
+starts at the rover;
+nothing else knows
+where the arena is
+
+Nav
+
+Page 3 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+#
+
+Node
+
+What it does
+
+Why we use it
+
+Owner
+
+7
+
+RTAB-Map
+(rtabmap_slam)
+
+Builds the map
+live, uses the
+tags as
+landmarks,
+publishes
+/rtabmap/map
+and map -> odom
+
+The arena cannot be
+pre-mapped, and
+landmark constraints
+correct drift at the
+start and on return
+
+Nav
+
+8
+
+obstacles_detection
+(rtabmap_util)
+
+Splits the ZED
+point cloud into
+/obstacles and
+/ground
+
+Already built and
+tuned; finds boulders;
+/ground clears
+phantom obstacles
+
+Nav
+
+9
+
+Nav2 planner_server
+(Smac Lattice)
+
+Plans footprintaware paths
+around obstacles
+
+A long skid-steer
+footprint needs
+footprint-aware
+planning that can
+turn in place
+
+Nav
+
+10
+
+Nav2 controller_server
+(Regulated Pure Pursuit)
+
+Follows the path
+and publishes
+cmd_vel with
+collision
+checking
+
+Predictable, handles
+the first rotation and
+the dump alignment
+
+Nav
+
+11
+
+Nav2 costmaps (local
+and global)
+
+Combine the
+RTAB-Map map,
+/obstacles and
+/ground into
+costs, with the
+arena boundary
+
+The planner and
+controller read them
+
+Nav
+
+12
+
+Nav2 bt_navigator
+(edited tree)
+
+Runs one
+navigation goal
+with replanning
+and recoveries
+
+Keeps recoveries
+inside Nav2 and gives
+the mission tree a
+simple success or
+failure
+
+Nav
+
+13
+
+Nav2 behavior_server
+
+Executes Spin,
+Wait and BackUp
+for recoveries
+
+Used by the behavior
+tree when the rover is
+stuck
+
+Nav
+
+Page 4 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+#
+
+Node
+
+What it does
+
+Why we use it
+
+Owner
+
+14
+
+Nav2 velocity_smoother
+and lifecycle_manager
+
+Limits
+acceleration
+(gentle on sand)
+and starts and
+stops the Nav2
+nodes
+
+Reduces wheel slip;
+standard Nav2
+plumbing
+
+Nav
+
+15
+
+Mission behavior tree
+(custom, py_trees_ros)
+
+Sequences find
+markers, travel,
+excavate, return,
+dump, repeat,
+with retries,
+timeouts and
+zone rules
+
+Nav2 only handles
+one goal at a time
+
+Nav
+
+16
+
+Claw interface: Excavate
+and Dump actions
+(custom)
+
+Drops, grabs and
+lifts; releases the
+sand
+
+The mission tree calls
+them as actions
+
+Mechanical
+
+17
+
+Crater detector (custom,
+conditional)
+
+Marks craters as
+lethal in the
+costmap
+
+Built only if the crater
+test shows
+obstacles_detection
+misses them
+
+Nav /
+Image
+
+18
+
+Teleop (joystick or
+keyboard) with
+twist_mux
+
+Lets the operator
+drive inside the
+start zone to
+lock, then hands
+control to Nav2
+
+Rules allow remote
+control in the start
+zone only for the lock
+
+Nav
+
+Hardware only: the E-STOP and the COTS energy data logger. Sections 1 to 12 below are
+the supporting analysis behind these choices.
+
+1. Executive summary (revised)
+We run RTAB-Map SLAM and Nav2 together, live, on a ZED 2i, and build only four small
+custom pieces; everything else is existing software configured for our rover.
+What changed since the first draft
+
+Page 5 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+The camera is a ZED 2i stereo camera, and the claw drops from underneath the rover,
+so the excavation task is one action (drop, grab, lift) and nothing needs to be filtered
+out of the camera view.
+RTAB-Map runs in SLAM mode at the same time as Nav2, because the arena cannot be
+mapped beforehand. It builds the map as the rover moves and uses the ArUco markers
+as landmarks to correct drift.
+Odometry is tuned, not replaced: ZED visual-inertial tracking plus wheel odometry in
+the existing ekf_local . Per your senior, tuned odometry should keep drift small.
+Nodes that duplicated RTAB-Map or the behavior tree were removed (pose lock
+manager, marker localizer, global EKF, zone monitor and others). Section 6 lists what
+stays and why.
+New section 7 explains the default Nav2 behavior tree and exactly how we edit it.
+What changed in revision 3 (skid-steer base). The planner is now Smac Lattice with
+differential primitives instead of Hybrid-A-star; wheel odometry feeds only forward speed
+into ekf_local because skid-steer wheel yaw is unreliable; recoveries are retuned for
+pivoting on sand; the base interface is a standard diff-drive controller rather than a
+custom node; and section 12 records every option chosen or rejected, with reasons.
+The problem in one line. Starting from a random pose and orientation, the rover must
+cross a 9 m x 5 m sand arena with random boulders and craters (touching or entering
+either costs points), pick up sand only in the far-right excavation zone with the claw, carry
+it to a 1.25 m x 0.9 m berm target, release it, and ideally repeat, all hands-free. GPS,
+compass, ultrasonic and touch sensors are banned, and the only navigation references
+are up to 5 ArUco markers around the start zone.
+The solution.
+1. Odometry: ZED visual-inertial tracking, tuned, fused with wheel odometry and IMU in
+ekf_local (2D mode). This is the main drift control.
+
+2. Map and localization: RTAB-Map in SLAM mode, running live next to Nav2. It publishes
+/rtabmap/map and map -> odom , and the ArUco markers go in as landmarks so the
+
+map is corrected whenever markers are seen (at the start and on return).
+3. Obstacles: the obstacles_detection pipeline you already have for boulders; test it on
+real craters before writing anything custom.
+4. Navigation: Nav2 with a footprint-aware planner and Regulated Pure Pursuit, using a
+lightly edited copy of the default Nav2 behavior tree (section 7).
+
+Page 6 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+5. Mission: a small Python behavior tree ( py_trees_ros ) that rotates to see the markers,
+travels, triggers the claw, returns, and releases the sand, with retries and timeouts.
+6. Custom code: only four pieces (a tag adapter and arena anchor, the mission tree, the
+claw interface from the mechanical team, and a crater detector only if testing shows
+we need it).
+What you need from other teams: marker detections with pose (image team), Excavate
+and Dump actions (mechanical team), a base that accepts cmd_vel and reports wheel
+odometry (controls).
+Biggest risks: drift on loose sand; craters that the stereo depth does not reveal; marker
+visibility at range; the rule against using walls; and the existing rtabmap.launch.py bug,
+which now matters directly because mapping mode is the mode we will use. Section 10
+has mitigations and section 11 the decisions to settle.
+
+2. What the rulebook means for navigation
+2.1 Rules that shape the design
+Rule (from the handbook)
+
+Consequence for our design
+
+Arena about 9 m x 5 m, about 30 cm of tilled
+dry sand
+
+Wheel slip is large and variable; wheel
+odometry alone is not trustworthy.
+
+Robot starts at a random position and
+orientation in the starting zone; the facing
+direction is decided on the spot by the
+judges
+
+The robot must localize itself from scratch,
+every run. No hard-coded start pose.
+
+Remote control is allowed only inside the
+starting zone, to "lock" localization;
+orientation data cannot be sent to the robot
+during autonomy
+
+We need a self-contained pose-lock
+procedure (rotate, see markers, compute
+pose).
+
+No GPS; compasses and magnetometerbased heading are not allowed; IMU allowed
+but compass function must be switched off
+and explained to judges
+
+Use a 6-axis fusion mode (gyro +
+accelerometer). Yaw comes from gyro
+integration, visual odometry and markers.
+
+No ultrasonic proximity sensors, no touch
+sensors, no hydraulics, no GPS
+
+Perception is depth camera (and possibly
+cameras or IR) only.
+
+Page 7 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Rule (from the handbook)
+
+Consequence for our design
+
+Walls cannot be used for mapping,
+navigation or collision avoidance; sensors
+must be shown not to use the walls; no real
+arena walls exist off-world
+
+Do not let walls enter the obstacle map as a
+navigation reference. Use a pre-defined
+arena keepout polygon instead, and crop
+wall returns out of perception. Be ready to
+explain this to inspection.
+
+Ramming a wall costs 50 points, twice; the
+third time cancels the run
+
+Keepout margin around the boundary and
+conservative speed near edges.
+
+Boulders 30-40 cm diameter, at least three,
+varying heights; at least three craters up to
+40-50 cm wide with varying depth; positive
+and negative obstacles are not traversable
+
+Treat all boulders as lethal regardless of
+height. Craters are lethal too. Need negative
+obstacle detection.
+
+Obstacle layout is random and cannot be
+uploaded or hard-coded into the autonomy
+program
+
+Onboard sensing only; no pre-loaded
+obstacle map.
+
+"Point and traverse" is not an accepted
+autonomy architecture
+
+The robot must perceive obstacles and plan
+around them. Fixed waypoints through the
+obstacle field are not enough.
+
+Markers: ArUco allowed; if only markers are
+used, at most 5 across the arena; each at
+most 25 cm x 25 cm; at most 60 cm high; one
+tag per marker; allowed only on the arena
+frame around the starting zone (two sides)
+and one on the wall attached to the starting
+zone; none in the obstacle zone or berm
+zone
+
+All markers are clustered at the start
+corner. The excavation zone is 6-9 m away
+from every marker.
+
+Markers must be placed in the 10 minute
+setup and removed in the 5 minute
+takedown; self-powered if active; mass
+counts toward 80 kg
+
+Marker layout must be quick to deploy and
+repeatable. Passive tags need no power.
+
+Robot envelope 1.5 m x 0.75 m x 0.75 m at
+start; may deploy up to 1.75 m extra height
+afterwards; 80 kg max
+
+A deployable camera mast is allowed and
+would greatly help crater and marker
+visibility. The footprint is long and narrow, so
+planning must be footprint-aware.
+
+Page 8 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Rule (from the handbook)
+
+Consequence for our design
+
+Sand for the berm may only be acquired in
+the excavation zone; sand must be carried,
+not dragged or bulldozed; obstacles may be
+moved only in the construction or
+excavation zones; do not fill craters in the
+obstacle zone
+
+The BT must enforce zone rules (dig only
+inside the excavation zone, lift the scoop
+when leaving).
+
+Contact with a rock or crossing a crater in
+the obstacle zone: -30 each (travel
+autonomy: one time; full autonomy: per
+occurrence, capped at -90)
+
+Safety margins matter more than speed.
+
+Run time: prelims 10 min, finale 15 min; the
+robot must move within 5 minutes or the run
+ends
+
+Localization lock must finish fast. Plenty of
+time to travel slowly: the crossing itself
+takes seconds to a minute.
+
+Average link bandwidth at most 4,000 kbps;
+Wi-Fi supplied by the team; arena cameras
+cost points (no camera = +120)
+
+Use only robot cameras, compressed
+streams, and autonomy that does not need
+video.
+
+Hands-free autonomy needs a verbal
+declaration to the Mission Control Judge;
+touching controls cancels the attempt
+
+The system must publish clear status for the
+operators to announce, and never require
+human input mid-cycle.
+
+2.2 Scoring ladder (where the navigation team's work pays off)
+Level
+
+Points
+
+What it needs
+
+Travel automation
+
+250 (-30 once for contact or
+crater, -50 if attempted after
+crossing the obstacle zone by
+remote control)
+
+Localization, obstacle detection,
+planning from the starting zone to
+the excavation zone, hands-free,
+from the start of the run
+
+Excavation
+automation
+
+75
+
+Autonomous digging every time
+during the run
+
+Dump automation
+
+50
+
+Autonomous dumping every time;
+control must be handed to the
+computer before entering the
+construction zone
+
+Page 9 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Level
+
+Points
+
+What it needs
+
+Full autonomy
+
+450 for one full cycle; 600 for at
+least two full cycles, hands-free
+for the entire run, plus berm
+points
+
+Everything above, in sequence,
+including return to the
+construction zone and dumping at
+the berm location
+
+Berm productivity
+
+Volume per minute per kg, and
+volume per minute per watt-hour
+
+Faster, lighter, more efficient
+cycles
+
+Consequence: travel autonomy is our team's direct responsibility and is worth the most
+among the single levels. It is also the foundation of full autonomy. Build in this order:
+travel, then return and dump alignment, then digging and the full loop.
+
+2.3 Arena geometry and coordinate frame (from the diagram; verify on site)
+Total 9 m (x, long axis) by 5 m (y, short axis).
+Start zone: top left, about 2 m wide and about 3.5 m tall (5 m minus the 1.5 m
+construction zone). No rocks or craters inside.
+Construction zone: bottom left, 2 m x 1.5 m, containing the target berm area of 1.25 m x
+0.9 m.
+Obstacle zone: middle, 5.5 m wide.
+Excavation zone: right, 1.5 m wide, 5 m tall.
+Proposed arena frame: origin at the bottom-left inner corner of the arena, x toward the
+excavation zone, y toward the start zone. Then: construction zone x 0-2, y 0-1.5; start zone
+x 0-2, y 1.5-5; obstacle zone x 2-7.5; excavation zone x 7.5-9. All zone polygons live in one
+YAML file in this frame. RTAB-Map's own map frame starts at the rover's starting pose, so
+the arena anchor (section 5.3) publishes map -> arena from marker 0. Marker positions
+are measured against the arena frame during the 10 minute setup, using a tape measure
+and a template jig.
+
+3. The core difficulty: markers are only near the start
+Because markers may only sit around the start zone, the robot sees them clearly at the
+beginning and again when it returns to the construction zone, but not while digging at x =
+7.5 to 9 m. So the right mental model is:
+
+Page 10 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Markers are "absolute resets". Between resets the robot navigates on relative
+sensing: visual odometry, IMU and local obstacle maps.
+
+3.1 How far can a 25 cm tag be seen? (ideal-case estimates)
+Pixel size of a tag is about f x 0.25 / Z, where f is the focal length in pixels and Z the range.
+The ZED 2i comes with a wide 2.1 mm lens or a narrower 4 mm lens (check which one you
+have); the table uses both.
+ZED 2i lens and resolution
+
+Focal length
+(px)
+
+25 cm tag at 3
+m
+
+at 5
+m
+
+at 8
+m
+
+2.1 mm lens (about 110 degree HFOV),
+1080p
+
+about 670
+
+56 px
+
+34 px
+
+21 px
+
+2.1 mm lens, 2K (2208 px wide)
+
+about 770
+
+64 px
+
+39 px
+
+24 px
+
+4 mm lens (about 72 degree HFOV),
+1080p
+
+about 1,320
+
+110 px
+
+66 px
+
+41 px
+
+4 mm lens, 2K
+
+about 1,520
+
+127 px
+
+76 px
+
+48 px
+
+A 6x6 ArUco tag has 8 modules across (including its border), and you want about 5-6
+pixels per module, so about 40-50 px across the tag. With the wide 2.1 mm lens that means
+tags are usable to about 4 m at 1080p (5-6 m at 2K); with the 4 mm lens to about 8 m. A
+trained detector can reach somewhat further, but pose quality drops with range. Ideal
+range error is about Z x (0.5 px / tag pixels): roughly 1 cm at 3 m and 4 cm at 5 m with the 4
+mm lens. Real-world error is typically 2-4 times larger because of blur, vibration, glare and
+calibration, so plan to trust marker position fixes only within about 4-6 m. We only need
+markers near the start zone and the construction corner (about 1.5-4 m away at the lock
+and at the dump), so even the wide lens works, but the 4 mm lens gives a safer margin.
+Implications for the image team: print the tags at the full 25 cm, matte and non-glare; pick
+the dictionary with the biggest modules that still gives enough distinct ids (a 4x4
+dictionary has larger modules than 6x6); and publish a confidence and reprojection error
+with every pose. One rule point for us: the ZED 2i has a built-in magnetometer and
+barometer, and the handbook bans compasses. Make sure nothing in the ZED tracking or
+RTAB-Map configuration uses magnetometer data, and be ready to show the judges how
+it is switched off.
+
+Page 11 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+3.2 Drift budget between marker resets (assumptions to verify)
+Source
+
+Typical error on loose sand
+
+Effect over an 8 m
+crossing
+
+Wheel odometry only
+
+5-20 percent slip
+
+0.4 to 1.6 m (too large
+alone)
+
+IMU yaw only (no
+magnetometer)
+
+1-3 degrees per minute
+
+0.2 to 0.4 m lateral per
+minute of driving
+
+ZED visual-inertial tracking,
+tuned (assumption)
+
+about 1-3 percent of
+distance; sand has weak
+texture, so test it
+
+8 to 24 cm
+
+ZED + wheel + IMU in
+ekf_local , then RTAB-Map
+marker correction
+
+better than any single
+source; markers reset the
+error at the start and again
+on return
+
+target under 20 cm per
+crossing, then corrected
+
+What to tune (your senior's plan). Odometry quality is the main lever, so treat it as a
+tuning task with numbers:
+ZED tracking: IMU fusion on, 2D mode on if the wrapper offers it, sensible depth range
+and confidence threshold. Consider turning off the ZED's own area memory so its
+odometry stays free of jumps while RTAB-Map does the global correction (check the
+exact option names in your wrapper version).
+Wheel odometry: on a skid-steer base the wheels slip sideways in every turn, so wheel
+yaw is unreliable: fuse only the wheels' forward speed, keep their yaw rate out of the
+filter (or give it a very large covariance), and let the IMU gyro and the ZED supply yaw.
+Calibrate wheel radius and the effective track width (larger than the geometric one)
+with in-place turn tests on sand, and give wheel odometry a larger covariance than the
+ZED in ekf_local .
+How to measure: drive a marked 8 m straight line and a 90 degree turn ten times on
+sand-like ground, log the end pose against a tape measure, and tune until the error
+spread is acceptable.
+
+Page 12 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+3.3 Where accuracy actually matters
+Task
+
+Required accuracy
+
+How we get it
+
+Avoiding boulders and craters
+
+Relative to the robot,
+centimetres
+
+Local perception, not global
+position
+
+Reaching the excavation zone
+(a 1.5 m wide strip)
+
+Tens of centimetres
+
+Odometry fusion is enough
+
+Staying off walls
+
+Margin of about 0.3-0.5
+m
+
+Keepout polygon plus
+localization covariance
+
+Dumping on the 1.25 m x 0.9 m
+berm target
+
+About 10-15 cm
+
+Marker re-lock when back near
+the construction zone, then a
+short alignment motion
+
+This is the key design idea to present: lock at the start, trust odometry across the
+obstacle field, re-lock at the return, then dump.
+
+4. Solution options and the recommended choice
+4.1 Localization
+Option
+
+How it works
+
+Pros
+
+Cons
+
+Verdict
+
+A. Odometry
+only, one
+marker lock
+at the start
+
+Dead reckoning
+
+Simplest
+
+Drift, and no
+correction when
+returning to the berm
+
+Reject
+
+B. Two EKFs
+with a
+custom
+marker
+localizer
+(first draft)
+
+A custom node turns
+tag sightings into a
+pose for a second
+
+Full control
+
+Two extra custom
+nodes, and RTAB-Map
+already does this job
+
+Dropped
+
+robot_localization
+
+filter
+
+Page 13 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Option
+
+How it works
+
+Pros
+
+Cons
+
+Verdict
+
+C. RTAB-Map
+SLAM
+running live
+next to
+Nav2,
+markers as
+landmarks,
+plus
+
+RTAB-Map builds the
+map as the rover
+moves; each marker
+sighting is a landmark
+constraint; it publishes
+
+Already in
+use by the
+team; no
+premapping
+needed;
+corrects
+drift
+whenever
+markers are
+seen;
+fewest
+custom
+nodes
+
+The
+
+Chosen
+
+Best
+accuracy
+
+Most work, fewer
+ROS examples
+
+map -> odom
+
+ekf_local
+
+D. Factor
+graph
+(GTSAM /
+iSAM2) with
+marker
+factors
+
+Optimises the whole
+trajectory
+
+rtabmap.launch.py
+
+mapping-mode bug
+must be fixed; sand
+has weak loop
+closures so the
+landmarks do the
+correcting; CPU load
+
+Stretch
+goal only
+
+4.2 Mapping and perception
+Option
+
+How it works
+
+Pros
+
+Cons
+
+Verdict
+
+A.
+
+Slope and
+height
+segmentation of
+the stereo cloud
+into
+
+Reuse;
+known
+behaviour;
+tuned
+params carry
+over
+
+Craters are
+holes, not
+obstacles; a
+shallow
+crater under
+the slope
+limit may
+look like
+ground
+
+Chosen for
+boulders;
+test it on
+real craters
+first
+
+obstacles_detection
+
+into Nav2 costmaps
+(what you already built)
+
+/obstacles
+
+and /ground
+
+Page 14 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Option
+
+How it works
+
+Pros
+
+Cons
+
+Verdict
+
+B. Elevation map plus a
+custom negativeobstacle detector
+
+Rolling height
+map; cells below
+local ground are
+lethal
+
+Treats
+craters
+explicitly
+
+Custom
+code and
+tuning
+
+Build only if
+the test of A
+fails
+
+C. Full 3D occupancy
+(OctoMap, nvblox)
+
+Voxel map
+
+Detailed
+
+Heavy on
+compute;
+overkill for a
+flat arena
+
+Reject
+
+D. Learned terrain
+segmentation from RGB
+
+A network
+labels craters
+and rocks
+
+Can see
+what depth
+misses
+
+Training data
+and time;
+image team
+workload
+
+Optional
+later
+
+4.3 Planning and control
+Option
+
+Pros
+
+Cons
+
+Verdict
+
+Smac Lattice
+(differential
+primitives) + Regulated
+Pure Pursuit
+
+Footprint-aware at
+every heading; can
+turn in place or follow
+arcs; a rotation
+penalty keeps pivots
+rare; matches a skidsteer base
+
+Needs a primitives file
+(a sample set ships
+with Nav2, confirm in
+your install);
+Regulated Pure
+Pursuit handles pivots
+in the middle of a path
+poorly, so test early
+
+Chosen
+(baseline)
+
+Smac Hybrid-A-star +
+Regulated Pure Pursuit
+
+Footprint-aware,
+smooth paths
+
+Plans like a car with a
+minimum turning
+radius, which a skidsteer does not have;
+may fail or detour from
+a random start
+heading near a wall
+
+Not chosen
+
+Smac Lattice + MPPI
+(DiffDrive model)
+
+Handles pivots and
+tight turns, footprintaware critics
+
+CPU heavy; availability
+depends on your
+Humble apt version
+(check)
+
+Upgrade path
+
+Page 15 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Option
+
+Pros
+
+Cons
+
+Verdict
+
+NavFn + DWB (current
+simulation setup)
+
+Familiar, already tuned
+
+NavFn treats the robot
+as a circle; a 1.5 m long
+robot becomes a huge
+circle and may block
+the slalom gaps; DWB
+oscillates in tight
+spaces
+
+Simulation
+demo only
+
+Custom planner (RRTstar, lattice)
+
+Full control
+
+Reinvents Nav2; time
+cost
+
+Reject
+
+The base is skid-steer (confirmed). A skid-steer can turn on the spot, so the planner
+must be allowed to rotate in place (the lattice with differential primitives does this). But
+pivoting on 30 cm of loose sand scrubs the wheels, digs in and ruins wheel odometry, so
+raise the lattice rotation penalty and prefer gentle arcs, and keep pivots for the start, the
+dump alignment and recoveries. Start from the sample differential primitives that ship
+with nav2_smac_planner (0.5 m turning radius, confirm the file exists in your Humble
+install) and generate a larger-radius set with the lattice generator if sand tests show
+pivoting hurts. Also note that spinning a 1.6 m long rover sweeps a circle about 1.8 m
+across, nearly the whole width of the 2 m start zone, so the first turn needs care (see
+section 12.2).
+
+4.4 Mission orchestration
+Option
+
+Pros
+
+Cons
+
+Verdict
+
+Finite state machine
+
+Easy to start
+
+State explosion
+with retries and
+recoveries
+
+Reject for the full
+mission
+
+Plain script
+
+Fastest to demo
+
+Fragile, no
+recovery
+structure
+
+Prototype only
+
+Behavior tree in C++
+(BehaviorTree.CPP, the
+library Nav2 uses)
+
+Same library and
+ideas as Nav2
+
+Steeper for a
+Python-first team
+
+Fine if the team
+prefers C++
+
+Page 16 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Option
+
+Pros
+
+Cons
+
+Verdict
+
+Behavior tree in Python
+( py_trees_ros )
+
+Ready-made ROS
+action-client
+behaviours, quick to
+iterate, tree viewer
+available
+
+Not the same
+library as Nav2's
+internal tree
+
+Recommended
+
+5. Recommended architecture (revised)
+The whole system is four jobs: know where I am, see obstacles, drive to a goal, decide
+what to do next. Each job maps to a tool we already know.
+
+5.1 Layers and data flow
+MISSION
+
+mission behavior tree (Python, py_trees_ros)
+| NavigateToPose goals, claw actions
+
+^ success /
+
+failure
+NAVIGATION
+Nav2: bt_navigator (edited default tree), planner (Smac),
+controller (RPP),
+behavior_server, velocity_smoother
+^ costmaps
+MAP + POSE
+landmarks
+
+| cmd_vel
+
+RTAB-Map SLAM running live: /rtabmap/map, map -> odom, ArUco
+^ images, odometry
+
+^ /obstacles,
+
+/ground
+PERCEPTION
+ODOMETRY
+
+obstacles_detection on the ZED point cloud
+ekf_local: ZED visual-inertial odometry + wheel odometry + IMU
+
+HARDWARE
+
+ZED 2i driver, base controller (ros2_control), E-STOP
+
+(small)
+
+tag adapter + arena anchor: ties the marker frame to the arena
+
+frame
+
+Page 17 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+5.2 TF tree
+map (RTAB-Map's frame; it starts where the rover starts)
+├─ arena
+
+(arena anchor: from marker 0 plus the measured
+
+layout offset)
+└─ odom
+└─ base_footprint
+
+(RTAB-Map: map -> odom)
+(ekf_local: odom -> base_footprint)
+
+└─ base_link ── zed camera frames, imu_link, claw links
+(robot_state_publisher)
+
+This is the same structure as MaRs-AutoNav, so your Nav2, EKF and RTAB-Map configs
+carry over.
+
+5.3 Localization: RTAB-Map SLAM live, markers as landmarks
+At the start the behavior tree rotates the rover slowly in place until a marker with a
+good pose is seen and RTAB-Map has recorded it (a condition node watches the
+detections). No separate lock node is needed. RTAB-Map's map frame begins at the
+rover's starting pose.
+Tying the map to the arena. Marker 0's position in the arena is measured during the 10
+minute setup, so the arena frame is marker 0's frame plus a fixed offset. A small script
+(the arena anchor) reads marker 0's pose in the map frame (from RTAB-Map's
+landmark output if your version exposes it, otherwise from the detection plus TF) and
+publishes map -> arena . Zones, staging poses and the arena boundary are defined in
+the arena frame in one YAML file.
+Crossing the obstacle zone: ekf_local carries the pose; RTAB-Map keeps adding
+map nodes and the occupancy grid grows. Tuned odometry keeps the drift small
+(section 3.2).
+On the return the markers come back into view; RTAB-Map adds a landmark
+constraint, optimises its graph and shifts map -> odom , which corrects the
+accumulated drift before the dump. Nav2's global costmap simply rebuilds from the
+updated /rtabmap/map .
+Configuration: SLAM mode with a fresh database each run ( --delete_db_on_start ),
+odometry from /odometry/local , visual_odometry:=false as you run it today, the
+landmark input as documented for your rtabmap_slam version, and a modest
+detection rate to save CPU. RTAB-Map can also detect ArUco tags itself through its
+Marker parameters (verify the names in your version), which is a useful fallback until
+
+the image team's detector is ready.
+
+Page 18 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Fix first: the mapping-mode branch of rtabmap.launch.py (missing f prefix on the
+argument string) is exactly the mode we will now use all the time.
+
+5.4 Perception
+Boulders: keep obstacles_detection , retuned for sand. Start with a lower
+Grid/MaxGroundAngle (about 15-20 degrees, an assumption to test), keep the range at
+about 4-5 m (stereo depth error grows quickly with distance), and set ZED depth mode
+and confidence threshold for sand. Passive stereo works in sunlight and on textured
+sand, but check smooth, shadowed or very fine sand.
+Craters: test before building. Put a real crater mock-up in front of the rover and watch
+/obstacles and the 2D map. A steep crater wall is marked as an obstacle, but a
+
+shallow crater below the slope limit looks like ground, and a hidden floor appears as
+missing data. Geometry reminder: with the camera 0.7 m high and a crater 3 m ahead,
+the grazing angle is only about 13 degrees, so the far rim of a 50 cm wide, 15 cm deep
+crater hides the floor. Cheap fixes first: set Nav2 allow_unknown: false so the
+planner will not drive through cells it never saw, and mount the camera higher (a
+deployable mast gives a steeper view and is allowed after the start). Write a custom
+crater detector only if these fail.
+Walls: the handbook forbids using walls for autonomy, so we need an answer from the
+organizers on whether wall returns in the costmap are acceptable. If not, the arena
+anchor can also crop points outside the arena polygon and publish a virtual boundary
+(a short cloud along the arena edge, built from known dimensions) so the planner stays
+inside without sensing the walls.
+Claw: it hangs underneath, so it is out of the camera's view and needs no self-filter.
+
+5.5 Planning and control starting points
+Item
+
+Starting value
+
+Reason
+
+Footprint
+
+1.6 m x 0.85 m polygon (real size plus
+margin)
+
+The robot is long; a circle would
+waste the gaps between boulders
+
+Planner
+
+Smac Lattice with differential (skidsteer) primitives, footprint collision
+checking, and a raised rotation
+penalty so pivots are rare
+
+Footprint-aware slalom
+
+Page 19 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Item
+
+Starting value
+
+Reason
+
+Controller
+
+Regulated Pure Pursuit with
+collision checking (rotate-toheading on, reversing off); MPPI
+with the DiffDrive model as an
+upgrade if available in your Humble
+install
+
+Smooth, predictable, easy to
+explain
+
+Speed
+
+0.3 to 0.4 m/s near obstacles; up to
+0.5 m/s on open ground; turn rate
+about 0.4 to 0.6 rad/s with gentle
+angular acceleration (assumption,
+tune on sand)
+
+The crossing is only 6-8 m, so speed
+is cheap to give up
+
+Inflation
+radius
+
+about 0.5 m with steep cost scaling
+
+Margin against the -30 point
+contact penalty
+
+Goal
+tolerance
+
+0.15-0.25 m at staging poses; tighter
+at the dump pose
+
+Berm target is 1.25 m x 0.9 m
+
+Progress
+checker
+
+about 0.2 m within 15 s
+
+Detects being stuck in sand
+
+6. What we actually need to build (revised)
+Only four small custom pieces; everything else is existing software. The rule we used: a
+custom node exists only if no existing tool (RTAB-Map, Nav2, the behavior tree, the ZED
+wrapper) can do the job and it improves our score.
+
+6.1 Existing software, configuration only
+Component
+
+What it does
+
+Owner
+
+ZED ROS 2 wrapper
+
+Images, depth, point cloud, IMU and visualinertial odometry from the ZED 2i
+
+Nav / Img
+
+Page 20 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Component
+
+What it does
+
+Owner
+
+Base controller
+( ros2_control )
+
+Turns cmd_vel into left and right wheel
+commands for the skid-steer base (the
+ros2_control diff_drive_controller with the
+wheels grouped per side is the usual
+choice; tune its
+wheel_separation_multiplier on sand),
+publishes wheel odometry and joint states
+with its own odom TF switched off
+(ekf_local publishes odom ->
+base_footprint), stops on command
+timeout. The real base has one encoder per
+side, so wheel odometry gives forward
+speed and only a rough yaw
+
+Controls
+
+robot_state_publisher and
+
+Robot frames: camera, IMU, claw
+
+Nav
+
+Fuses ZED odometry, wheel odometry and
+IMU into /odometry/local and odom ->
+base_footprint (you already have it)
+
+Nav
+
+RTAB-Map SLAM
+
+Live map, /rtabmap/map , map -> odom ,
+marker landmarks (you already have it)
+
+Nav
+
+obstacles_detection
+
+/obstacles and /ground from the point
+
+Nav
+
+URDF
+ekf_local
+
+( robot_localization )
+
+cloud (you already have it)
+Nav2 servers
+
+bt_navigator , planner, controller,
+
+Nav
+
+behavior server, velocity smoother,
+lifecycle manager (you already have them)
+twist_mux (optional)
+
+Lets teleop in the start zone override
+autonomy safely
+
+Nav
+
+ArUco detector
+
+Marker ids and poses from the camera
+
+Image
+team
+
+Hardware-only items: the E-STOP and the COTS energy data logger.
+
+Page 21 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+6.2 Custom pieces we build
+Piece
+
+What it does
+
+Why nothing existing
+does it
+
+Size
+
+1. Tag adapter
+and arena anchor
+
+Converts the image
+team's detections
+into the message
+RTAB-Map expects
+(if they do not
+already publish it);
+publishes map ->
+arena from marker
+0; optionally
+publishes the virtual
+boundary or crops
+points outside the
+arena
+
+RTAB-Map's frame
+starts at the rover's
+start pose, and
+nothing else knows
+where the arena is
+
+One small node, about
+50-100 lines
+
+2. Mission
+behavior tree
+
+Sequences the
+whole run: find
+markers, travel, claw,
+return, release,
+repeat, with retries
+and timeouts
+
+Nav2 only handles
+one navigation goal
+at a time
+
+py_trees_ros tree
+
+plus about 7 small leaf
+behaviours
+
+3. Claw interface
+
+Excavate (drop,
+
+Mechanical
+hardware
+
+Written by the
+mechanical team
+
+Only needed if
+RTAB-Map's built-in
+obstacle detection
+misses craters in real
+tests
+
+Skip until tested
+
+grab, lift) and Dump
+(release) actions
+that our tree calls
+4. Crater
+detector
+(conditional)
+
+Marks craters as
+lethal in the costmap
+
+Page 22 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+6.3 Things we deliberately do not build
+Dropped idea
+
+What handles it instead
+
+Pose lock manager
+
+A behavior tree step: rotate slowly until a
+marker is seen, then continue
+
+Marker localizer and global EKF
+
+RTAB-Map landmark constraints correct map
+-> odom
+
+Separate arena frame node
+
+Part of the arena anchor; zone rectangles live
+in one YAML file
+
+Zone monitor
+
+A behavior tree condition IsInZone that
+compares TF with the YAML rectangles
+
+Dig site selector
+
+A fixed staging pose in the excavation zone;
+Nav2 goal tolerance finds nearby free
+ground; the claw drops under the rover
+
+Construction aligner
+
+A second NavigateToPose with tight
+tolerance, after RTAB-Map has corrected the
+pose from the markers
+
+Mission status publisher
+
+An AnnounceState behaviour that publishes
+a text message
+
+Self-filter for the arm
+
+The claw hangs underneath, out of the
+camera's view
+
+Elevation mapper, slip monitor, persistent
+map manager
+
+RTAB-Map's map already persists and is
+graph-optimised; ZED tracking plus EKF
+covariance covers slip
+
+Safety supervisor
+
+The base controller's command watchdog
+and the hardware E-STOP
+
+Telemetry bridge, rosbag, diagnostics
+
+Existing tools ( ros2 bag ,
+image_transport ); not part of the design
+
+Collision monitor, smoother server
+
+Optional; add only if tests show a benefit
+
+Page 23 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+6.4 How this maps to points
+Travel autonomy (250) needs the ZED, ekf_local , RTAB-Map with markers, obstacle
+detection, Nav2 and the mission tree, with no claw. Excavation (75) and dump (50) add the
+two claw actions. Full autonomy (450 for one cycle, 600 for two) needs all of it plus the
+return alignment. The crater detector is the one optional piece that directly protects
+points: each crater crossing or boulder contact costs 30.
+
+7. Behavior trees: the default Nav2 tree and how we edit it (revised)
+7.1 How a behavior tree runs
+A behavior tree is ticked over and over (Nav2's bt_loop_duration is 10 ms in your
+params). Each tick travels down from the root. Every node answers SUCCESS, FAILURE or
+RUNNING. Control nodes decide which child gets the tick (Sequence, Fallback,
+RecoveryNode). Action nodes call a server (plan a path, follow a path, spin) and stay
+RUNNING until it answers. Condition nodes check something and answer at once (goal
+updated?). A shared blackboard passes data such as {goal} and {path} between
+nodes.
+
+7.2 The default Nav2 tree on Humble
+This is navigate_to_pose_w_replanning_and_recovery.xml , which bt_navigator loads
+when you set no custom file (reproduced from memory; open the file under
+/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/ and compare, since your
+patch version may differ slightly):
+<root main_tree_to_execute="MainTree">
+<BehaviorTree ID="MainTree">
+<RecoveryNode number_of_retries="6" name="NavigateRecovery">
+<PipelineSequence name="NavigateWithReplanning">
+<RateController hz="1.0">
+<RecoveryNode number_of_retries="1" name="ComputePathToPose">
+<ComputePathToPose goal="{goal}" path="{path}"
+planner_id="GridBased"/>
+<ReactiveFallback name="ComputePathToPoseRecoveryFallback">
+<GoalUpdated/>
+<ClearEntireCostmap
+service_name="global_costmap/clear_entirely_global_costmap"/>
+</ReactiveFallback>
+
+Page 24 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+</RecoveryNode>
+</RateController>
+<RecoveryNode number_of_retries="1" name="FollowPath">
+<FollowPath path="{path}" controller_id="FollowPath"/>
+<ReactiveFallback name="FollowPathRecoveryFallback">
+<GoalUpdated/>
+<ClearEntireCostmap
+service_name="local_costmap/clear_entirely_local_costmap"/>
+</ReactiveFallback>
+</RecoveryNode>
+</PipelineSequence>
+<ReactiveFallback name="RecoveryFallback">
+<GoalUpdated/>
+<RoundRobin name="RecoveryActions">
+<Sequence name="ClearingActions">
+<ClearEntireCostmap
+service_name="local_costmap/clear_entirely_local_costmap"/>
+<ClearEntireCostmap
+service_name="global_costmap/clear_entirely_global_costmap"/>
+</Sequence>
+<Spin spin_dist="1.57"/>
+<Wait wait_duration="5"/>
+<BackUp backup_dist="0.30" backup_speed="0.05"/>
+</RoundRobin>
+</ReactiveFallback>
+</RecoveryNode>
+</BehaviorTree>
+</root>
+
+How it works, in plain words: plan once a second, drive along the path, and if stuck clear
+the costmaps, then try spin, wait and back up in turn, giving up after six rounds.
+1. The outer RecoveryNode runs its first child (the navigation). If that fails, it runs its
+second child (the recovery fallback) and then tries the navigation again. After 6 failed
+rounds it returns FAILURE and the NavigateToPose action aborts.
+2. The first child is a PipelineSequence : both parts keep being ticked every cycle, so the
+robot keeps following the path while the path is recomputed.
+3. The RateController limits ComputePathToPose to once per second (1 Hz). If planning
+fails, the inner RecoveryNode clears the global costmap and retries once, unless a new
+goal arrived ( GoalUpdated ).
+
+Page 25 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+4. FollowPath hands the path to the controller server. If the controller fails (no progress,
+collision ahead), its inner RecoveryNode clears the local costmap and retries once.
+5. If it still fails, the RoundRobin in the recovery fallback picks one recovery per failure, in
+order: clear both costmaps, then Spin 1.57 rad, then Wait 5 s, then BackUp 0.30 m, then
+back to the first.
+6. When the goal checker is satisfied, FollowPath returns SUCCESS and the whole tree
+returns SUCCESS.
+
+7.3 How we edit it for our rover
+Edit
+
+Why
+
+Notes
+
+Remove or shorten BackUp
+(0.30 m to about 0.2 m, and keep
+it)
+
+The camera looks forward
+only, so reversing is blind.
+But the ground behind the
+rover is ground it just
+drove over, so a short
+reverse is usually the
+safest way out; keep it
+short
+
+Keep it: a skid-steer
+reverses easily and it is the
+main way out if the wheels
+dig in. Check the local
+costmap still remembers
+the ground behind (avoid
+clearing it just before)
+
+Reduce Spin from 1.57 rad to
+about 0.8 rad
+
+A 1.5 m long rover
+swinging in the obstacle
+field can touch boulders;
+on a skid-steer base a
+pivot also scrubs the sand
+and degrades odometry
+
+Spinning is still useful to
+refresh what the stereo
+camera sees; pivot in short
+steps and let the filter
+settle
+
+Shorten Wait to about 3 s
+
+Enough for RTAB-Map and
+the costmaps to update,
+without wasting run time
+
+Reduce outer retries from 6 to
+about 3
+
+The prelim run is 10
+minutes; after 3 failed
+rounds the mission tree
+can try a different
+approach
+
+Failure then bubbles up to
+the mission tree
+
+Keep the 1 Hz replanning
+
+New boulders and craters
+appear as the map grows
+
+Could go to 2 Hz if CPU
+allows
+
+Page 26 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Edit
+
+Why
+
+Notes
+
+Optional: add SmoothPath after
+
+Lattice paths are built
+from fixed primitives and
+can look angular; test
+whether it helps
+
+Test early
+
+ComputePathToPose
+
+How to apply it. Copy the default file into our package as
+behavior_trees/navigate_competition.xml , make the edits above, install the folder in
+CMakeLists.txt , and set default_nav_to_pose_bt_xml under bt_navigator in
+nav2_params.yaml to that file. The BT node plugins we use are all already listed in your
+plugin_lib_names . The edited recovery part looks like this:
+<RecoveryNode number_of_retries="3" name="NavigateRecovery">
+... same NavigateWithReplanning as above ...
+<ReactiveFallback name="RecoveryFallback">
+<GoalUpdated/>
+<RoundRobin name="RecoveryActions">
+<Sequence name="ClearingActions"> ...two ClearEntireCostmap...
+</Sequence>
+<Wait wait_duration="3"/>
+<Spin spin_dist="0.8"/>
+</RoundRobin>
+</ReactiveFallback>
+</RecoveryNode>
+
+7.4 The mission tree (Python, py_trees_ros)
+Nav2's tree handles one navigation goal at a time. The competition logic sits in a second,
+small tree around it. Its navigation step just sends a goal to /navigate_to_pose and waits
+for success or failure; replanning and recoveries stay inside Nav2's edited tree.
+
+Page 27 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Mission (sequence)
+├── Startup
+│
+├── WaitForSystems
+running
+│
+└── LocateMarkers
+timeout, 3 tries)
+
+Nav2 active, ZED streaming, RTAB-Map
+rotate slowly until a marker is seen (60 s
+
+├── Cycle (repeat while time remains)
+│
+├── TravelToExcavation
+AnnounceState, NavigateToPose(excavation
+staging), retry 3
+│
+├── Excavate
+retry 2
+│
+├── ReturnToConstruction
+
+IsInZone(excavation), claw Excavate action,
+NavigateToPose(construction staging),
+
+marker check, NavigateToPose(dump pose)
+│
+└── Dump
+IsInZone(construction), claw Dump action
+└── If a step keeps failing: stop safely, announce, keep the points already
+earned
+
+The leaf behaviours are small: RotateSlowly , MarkerSeen (condition), NavigateToPose
+(a thin wrapper over a ROS action client), IsInZone (condition comparing TF with the
+YAML rectangles), Excavate and Dump (action clients), AnnounceState (publishes text),
+and TimeRemaining (condition). py_trees already provides the decorators we need: retry,
+timeout, one-shot and repeat. Blackboard keys: excavation_staging ,
+construction_staging , dump_pose , cycle_count .
+
+Rule logic that belongs in this tree
+Dig only when IsInZone(excavation) is true; the claw stays lifted everywhere else.
+Hands-free: the tree never needs human input, and AnnounceState gives the
+operators clear states for the verbal declarations.
+Autonomy must already be active before the rover enters the construction zone
+(dump automation rule), so the whole return runs under the tree.
+If digging fails repeatedly, fall back to travel-only so the travel autonomy points are
+kept.
+The robot must move within 5 minutes; LocateMarkers has a hard timeout, then tries a
+small move and retries.
+Before the dump, check that a marker has been seen recently so the pose was
+corrected; otherwise rotate to look for markers first.
+
+Page 28 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+7.5 What to show on Sunday
+Three things are enough: the layered architecture (section 5.1), the short custom-piece
+list (section 6), and one slide with the default Nav2 tree next to our edited version and the
+mission tree outline. You do not need a working tree yet.
+
+8. Team interfaces (contracts to agree early)
+Between
+
+Interface
+
+Details to agree
+
+Image team to us
+
+Marker detections: topic
+/aruco/detections or the
+landmark message RTAB-Map
+expects
+
+For each tag: id, four corner
+pixels, pose in the camera
+frame, reprojection error,
+ambiguity or confidence,
+timestamp matching the image,
+camera frame id. At least 10 Hz.
+Which ZED image they use
+(rectified left) and its
+calibration.
+
+Us to image team
+
+Tag layout and ids; ZED resolution
+and frame rate
+
+Fixed tag ids per position on the
+frame; the compute budget
+shared with RTAB-Map and
+depth
+
+Us to mechanical
+team
+
+Actions Excavate (claw down, grab,
+lift) and Dump (release); topic
+
+Goal and result (success,
+whether sand was picked up),
+feedback, time limits; the rover
+stands still while the claw
+works; the carry position the
+claw must hold while driving;
+what happens if the claw lands
+on a boulder
+
+/claw/state
+
+Controls to us
+
+cmd_vel accepted; wheel odometry
+
+and joint states; /estop_state ;
+/battery
+
+Velocity and acceleration limits,
+command timeout (watchdog),
+wheel geometry, encoder
+resolution, whether the
+compute stays powered after an
+E-STOP
+
+Page 29 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Between
+
+Interface
+
+Details to agree
+
+Us to operators
+(MCC)
+
+/mission/state text and a simple
+
+Clear states for the verbal
+autonomy declarations
+
+dashboard
+
+9. Simulation and testing plan
+Simulation. Build a Gazebo arena matching the diagram: 9 m x 5 m, zone markings, 30-40
+cm boulders (cylinders or rock meshes) placed randomly, craters as holes in a terrain
+mesh, ArUco textures on the frame, a randomised start pose and heading, depth camera
+noise, and wheel-slip noise injected into odometry (loose sand friction cannot be
+simulated faithfully, so inject error instead). Your MaRs-AutoNav world and launch
+structure are a good starting point, but that rover is a swerve model. For the competition
+simulation, swap in a skid-steer base (Gazebo DiffDrive system or a ros2_control diff
+drive with matching wheel friction) and keep the same world, sensors and Nav2 structure.
+Test ladder.
+1. Offline: record marker detections and replay them through RTAB-Map's landmark
+input ; check accuracy against measured positions.
+
+2. Simulation: run 100 randomised arenas; record success rate, contacts, craters entered,
+time to excavation zone, and localization error at the dump pose.
+3. Lab: printed tags on a frame, rover on a hard floor with boxes and a cut-out crater.
+4. Sand pit: real sand, real slip, real lighting; repeat the simulation metrics.
+5. Dress rehearsal: full 10-minute prelim timeline including the 10-minute setup, marker
+placement, inspection explanation and hands-free declarations.
+Metrics to track: lock time and lock error, localization error at the excavation staging and
+dump poses, obstacle contacts per run, crater entries per run, travel time, recoveries
+triggered, cycle time.
+Indicative milestones (compress or stretch once you confirm the event date):
+Milestone
+
+Content
+
+Rough timing
+
+M0
+
+Decisions in section 11 and interface contracts
+agreed
+
+Week 1
+
+M1
+
+Simulated arena, marker layout, pose lock working
+in simulation
+
+Weeks 2-3
+
+Page 30 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Milestone
+
+Content
+
+Rough timing
+
+M2
+
+Perception: boulder and crater detection feeding
+costmaps
+
+Weeks 3-5
+
+M3
+
+Nav2 with footprint-aware planner, keepout mask,
+tuned for the rover
+
+Weeks 4-6
+
+M4
+
+Mission behavior tree with stubs, then real nodes
+
+Weeks 5-7
+
+M5
+
+Hardware integration, camera mast, sand-pit tests
+
+Weeks 7-10
+
+M6
+
+Full-loop rehearsals and rule-compliance
+walkthrough
+
+Weeks 10-12
+
+10. Risks and mitigations
+Risk
+
+Why it matters
+
+Mitigation
+
+Drift on loose sand away
+from the markers
+
+Could miss the dump target
+or drift toward walls
+
+Tuned ZED odometry, RTABMap marker correction on
+return before dumping,
+margins around the
+boundary
+
+Craters not detected by the
+depth camera
+
+-30 per crossing; a crater can
+also trap the rover
+
+Test the built-in detection
+first, treat unseen ground as
+a hazard (allow_unknown
+false), custom detector only
+if needed, mast for a steeper
+view, test with real crater
+mockups early
+
+Markers not detected at
+range, glare or dust
+
+Lock fails or is unreliable
+
+Large matte tags at full 25
+cm, high-resolution camera
+or a dedicated narrow-FOV
+marker camera, exposure
+tuning, two or more tags
+visible from the start zone
+
+Page 31 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Risk
+
+Why it matters
+
+Mitigation
+
+Wall rule interpretation
+
+Disqualification risk if
+judged as using walls
+
+Keepout polygon from known
+dimensions, crop wall
+returns, show the inspection
+judge the data path, and get
+written clarification
+
+Depth camera performance
+on sand, in bright light, or
+with dust on the lens
+
+Noisy or missing depth
+
+Test the actual camera in
+sunlight-like conditions and
+on sand; cleaning of lenses
+must use a lunar-plausible
+physical process; shield the
+lens
+
+Wheels bogging down
+
+Progress stalls, 5 minute rule
+
+Velocity smoothing, short
+recovery moves, tuned
+odometry, no sharp pivots on
+loose sand
+
+Power cut by E-STOP
+resets the computer and
+the localization
+
+Only a laptop or a small
+computer on its own battery
+may stay powered after an ESTOP; otherwise the pose is
+lost
+
+Put the compute on an
+independent small battery if
+allowed (otherwise the live
+RTAB-Map map is lost), or
+design a fast restart and relock sequence; clarify with
+the safety judges
+
+Compute load and heat
+
+Perception and VO are
+heavy
+
+Decimate clouds, profile
+each node, use the GPU for
+ZED depth if available
+(neural depth needs one);
+test thermal limits
+
+Link bandwidth (4 Mbps
+average)
+
+Telemetry may throttle
+
+Compressed images, low
+frame rate, autonomy that
+does not depend on video
+
+Integration slips between
+teams
+
+Late discovery of
+mismatched interfaces
+
+Agree message definitions in
+week 1; use stubs and
+recorded bags
+
+Page 32 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Risk
+
+Why it matters
+
+Mitigation
+
+Single points of failure (one
+camera)
+
+Everything depends on it
+
+Redundant checks, health
+monitor, safe-stop when
+perception stalls
+
+11. Decisions and questions for your discussion
+11.1 Decisions to settle with your teammates
+1. Drive base: skid-steer (confirmed). Four wheels, ros2_control differential drive and
+one encoder per side are confirmed; wheelbase and track width are still to be
+measured. Section 12 applies the skid-steer choice to the planner and controller.
+2. ZED 2i setup: 2.1 mm or 4 mm lens, resolution and frame rate, and whether to mount it
+on a deployable mast.
+3. Marker layout: where each of the 5 tags goes on the frame, so at least two are visible
+from any start orientation and two are visible from the berm approach.
+4. Localization stack: confirm RTAB-Map SLAM with marker landmarks plus ekf_local ;
+decide who fixes the rtabmap.launch.py mapping-mode bug and who checks the
+landmark input for your Humble version.
+5. Odometry tuning plan: ZED tracking settings, wheel calibration, and the repeatable 8
+m test on sand-like ground.
+6. Crater test: build crater mock-ups and test the existing obstacles_detection before
+deciding whether a custom detector is needed.
+7. Mission tree framework: py_trees_ros (recommended) or BehaviorTree.CPP.
+8. Computer power: independent battery for the compute or not (an E-STOP power cut
+would lose the live map).
+9. Work split: who owns the arena anchor, the Nav2 behavior tree edit, the mission tree,
+the test arena and the simulation world.
+
+11.2 Questions to ask the organizers (clarify in writing)
+1. Is a keepout polygon built from the known arena dimensions acceptable, given the rule
+against using walls for autonomy?
+2. May tags be mounted anywhere on the frame along the start zone perimeter (including
+the end nearest the construction zone), and what exactly is the "two sides" boundary?
+
+Page 33 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+3. How exact are the zone dimensions and the berm target location, and how is the target
+marked on the sand?
+4. Is a 9-axis IMU acceptable if the magnetometer output is disabled in software and
+demonstrated to the judges?
+5. Is a deployable camera mast acceptable within the 1.75 m additional height rule, and
+may it be deployed autonomously after the start?
+6. After an E-STOP and reset, is it acceptable to re-lock localization, and what happens to
+a computer that loses power?
+7. Lighting conditions in the arena (indoor, outdoor, sunlight)?
+8. Is persistent obstacle memory within a run clearly allowed (we believe yes, since the
+robot builds it itself)?
+
+11.3 Suggested agenda for the team meeting (45-60 minutes)
+1. Read the scoring ladder and agree the goal: travel autonomy first, full loop second (5
+min).
+2. Present the architecture (section 5) and the node list (section 6) (15 min).
+3. Walk through the marker problem and the lock, cross, re-lock idea (section 3) (10 min).
+4. Walk through the mission tree skeleton (section 7) (10 min).
+5. Settle the decisions in 11.1 and the owners (15 min).
+6. List the clarification questions to send to the organizers (5 min).
+
+11.4 One-paragraph pitch you can say to your senior
+"We run RTAB-Map SLAM and Nav2 together on a ZED 2i, with tuned visual-inertial
+odometry as the main drift control. The ArUco markers go into RTAB-Map as landmarks,
+so the map is corrected when the rover sees them at the start and on its return to the
+berm. Boulders come from the obstacle detection we already have, and we test craters on
+a real mock-up before writing anything custom. Nav2 drives the rover using an edited
+copy of the default behavior tree, and a small Python mission tree runs the loop: find
+markers, travel, claw, return, release, repeat. We build only four small custom pieces and
+reuse the rest, and we aim for travel autonomy first, then the full loop."
+
+12. Decision record (revision 3): what we chose and why
+The base is skid-steer, so the choices below are the best option in each area for that base,
+with the reason for each option we did not take.
+
+Page 34 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+12.1 Chosen options and rejected alternatives
+Area
+
+Chosen
+
+Why chosen
+
+Not chosen, and why
+
+Localization
+
+RTAB-Map SLAM live,
+markers as landmarks,
+plus ekf_local
+
+The arena cannot
+be mapped
+beforehand,
+markers are our
+only absolute
+reference, and
+RTAB-Map already
+takes landmark
+constraints and
+publishes map ->
+odom. It already
+runs in our
+simulation, so it
+needs the fewest
+new nodes.
+
+Odometry only: no
+correction before the
+dump, which needs 10-15
+cm. Two EKFs with a
+custom marker localizer:
+repeats what RTAB-Map
+does and adds two nodes
+to maintain. Factor graph
+(GTSAM): best accuracy
+but the most work, kept
+as a stretch goal.
+
+Odometry
+
+ZED visual-inertial
+tracking, wheel forward
+speed and IMU gyro in
+ekf_local
+
+Skid-steer wheels
+slip sideways in
+every turn, so
+wheel yaw is the
+weakest signal.
+The gyro and the
+ZED give yaw; the
+wheels give a
+speed check.
+
+Wheel odometry alone:
+5-20 percent slip on sand
+and poor yaw. IMU yaw
+alone: drifts 1-3 degrees
+per minute without a
+magnetometer.
+
+Boulder and
+crater
+sensing
+
+obstacles_detection on
+the ZED cloud, with a
+crater test before any
+new code
+
+Already built and
+tuned; boulders
+are steep, so slope
+segmentation
+finds them. We
+build more only if
+the crater test
+fails.
+
+Elevation map with a
+custom negativeobstacle detector: only if
+the test fails. OctoMap or
+nvblox: heavy on
+compute and overkill for
+a flat arena. Learned
+terrain segmentation:
+needs training data and
+image-team time,
+optional later.
+
+Page 35 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Area
+
+Chosen
+
+Why chosen
+
+Not chosen, and why
+
+Global
+planner
+
+Smac Lattice with
+differential (skid-steer)
+primitives
+
+Checks the real 1.6
+m x 0.85 m
+footprint at every
+heading, allows
+turning in place
+when needed, and
+a rotation penalty
+keeps pivots rare.
+The rover starts at
+a random heading
+in a 2 m wide zone,
+where a car-style
+planner may find
+no path.
+
+Smac Hybrid-A-star:
+models a car with a
+minimum turning radius
+that a skid-steer does
+not have, so it can fail or
+detour from a random
+start heading. NavFn or
+Smac 2D: treat the robot
+as a point or circle, which
+blocks the gaps between
+boulders. Custom
+planner: reinvents Nav2.
+
+Local
+controller
+
+Regulated Pure Pursuit
+
+Predictable,
+checks collisions
+along its path,
+rotate-to-heading
+handles the
+random start
+heading and the
+dump alignment,
+and it is easy to
+explain to the
+judges.
+
+DWB: oscillates in tight
+gaps and needs many
+critics tuned. MPPI with
+the DiffDrive model:
+handles pivots inside
+paths and is the upgrade
+path, but is CPU heavy
+and may not be in the
+Humble apt version.
+
+Mission logic
+
+Behavior tree in Python
+(py_trees_ros)
+
+Ready-made ROS
+action behaviours,
+retries, timeouts
+and a tree viewer;
+fast to iterate for a
+Python-first team.
+
+Finite state machine:
+states multiply once
+retries and recoveries
+are added. Plain script:
+fragile, no recovery.
+BehaviorTree.CPP: same
+library as Nav2 but
+slower to iterate; fine if
+the team prefers C++.
+
+Page 36 of 37
+
+CAT Autonomy Challenge: Navigation Solution Proposal
+
+Area
+
+Chosen
+
+Why chosen
+
+Not chosen, and why
+
+Base
+interface
+
+ros2_control
+diff_drive_controller
+with left and right wheel
+groups
+
+Standard,
+supports skidsteer through a
+track-width
+multiplier,
+publishes
+odometry and has
+a command
+timeout. No
+custom base node.
+
+Porting
+swerve_controller.py: it
+holds swerve kinematics
+from the simulation and
+does not fit this rover. A
+custom controller: only if
+the real motor drivers
+cannot run ros2_control.
+
+12.2 Caveats to test early and open points
+Pivots inside a path. Regulated Pure Pursuit chases a look-ahead point, so it handles
+the first rotation and arcs but not pivots in the middle of a path. Keep the lattice
+rotation penalty high and test in simulation first; if it misbehaves, switch to MPPI with
+the DiffDrive model.
+Start zone clearance. The rover's circumscribed radius is about 0.9 m, so a full pivot
+needs a circle about 1.8 m across, close to the 2 m start zone width read from the
+diagram. The rulebook gives only the diagram value, so we design around it: use the
+allowed remote-control step in the start zone to move the rover to a clear spot and a
+heading that sees the markers before going hands-free, and treat autonomous pivots
+near the frame as a fallback.
+Lattice primitives. Confirm the sample differential primitives exist in your Humble
+install, and decide the minimum turning radius after sand tests.
+Base details. Four wheels, differential drive through ros2_control and one encoder per
+side are confirmed. Wheelbase and track width are not measured yet; they are needed
+later for the footprint and the track-width multiplier, but not for the proposal.
+Simulation. The MaRs-AutoNav rover is swerve; the competition simulation needs a
+skid-steer model, and its holonomic settings do not carry over.
+
+Page 37 of 37
+
+

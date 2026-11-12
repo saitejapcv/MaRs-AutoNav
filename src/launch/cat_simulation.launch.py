@@ -19,6 +19,7 @@ def generate_launch_description():
         workspace_root,
         os.path.join(workspace_root, 'src'),
         pkg_path,
+        os.path.dirname(pkg_path),
         os.path.join(pkg_path, 'description'),
         os.path.join(pkg_path, 'worlds'),
         '/home/yashvant/Desktop/MaRs-AutoNav'

@@ -151,7 +151,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://caterpillar_challenge/description/meshes/cleated_wheel.obj" scale="1 1 1"/>
+          <mesh filename="file://$(find caterpillar_challenge)/description/meshes/cleated_wheel.obj" scale="1 1 1"/>
         </geometry>
         <material name="wheel_white"/>
       </visual>

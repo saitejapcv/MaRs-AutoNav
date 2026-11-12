@@ -124,7 +124,7 @@ local_costmap:
           topic: /hazards/all_hazards
           max_obstacle_height: 2.0
           min_obstacle_height: -0.5
-          clearing: true
+          clearing: false
           marking: true
           data_type: "PointCloud2"
           raytrace_max_range: 4.0
@@ -161,7 +161,7 @@ global_costmap:
           topic: /hazards/all_hazards
           max_obstacle_height: 2.0
           min_obstacle_height: -0.5
-          clearing: true
+          clearing: false
           marking: true
           data_type: "PointCloud2"
           raytrace_max_range: 4.5
