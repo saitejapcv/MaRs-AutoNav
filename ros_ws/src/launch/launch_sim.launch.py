@@ -80,12 +80,12 @@ def generate_launch_description():
         arguments=['steering_position_controller', '--controller-manager', '/controller_manager'],
     )
 
-    # 7. Our Custom Swerve Brain
-    swerve_brain = Node(
+    # 7. Our Custom Ackermann Controller
+    ackerman_controller = Node(
         package=package_name,
-        executable='swerve_controller.py',
+        executable='ackerman_controller.py',
         output='screen',
-        parameters=[{'use_sim_time': True}]
+        parameters=[{'use_sim_time': True, 'publish_tf': False}]
     )
 
     # 8. CHAINING THE SPAWNERS (The Fix for the Race Condition)
@@ -103,10 +103,10 @@ def generate_launch_description():
         )
     )
 
-    delay_swerve_brain = RegisterEventHandler(
+    delay_ackerman_controller = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=spawn_steer,
-            on_exit=[swerve_brain],
+            on_exit=[ackerman_controller],
         )
     )
 
@@ -178,7 +178,7 @@ def generate_launch_description():
         TimerAction(period=3.0, actions=[spawn_broadcaster]),
         delay_drive_spawner,
         delay_steer_spawner,
-        delay_swerve_brain,
+        delay_ackerman_controller,
         start_ekf_node,
         TimerAction(period=5.0, actions=[navsat_transform]),
         TimerAction(period=7.0, actions=[rtabmap_node])

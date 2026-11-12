@@ -17,6 +17,7 @@ install(DIRECTORY
 
 install(PROGRAMS
   scripts/swerve_controller.py
+  scripts/ackerman_controller.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
