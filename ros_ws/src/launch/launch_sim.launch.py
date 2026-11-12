@@ -177,7 +177,10 @@ def generate_launch_description():
             'Grid/From3D': 'true',               # Projects 3D scan cloud directly into 2D occupancy grid
             'Grid/Sensor': '0',
             'RGBD/CreateOccupancyGrid': 'true',  # Creates and saves local occupancy grids in memory
-            'RGBD/ProximityPathMaxNeighbors': '0'
+            'RGBD/ProximityPathMaxNeighbors': '0',
+            'Reg/Strategy': '1',                 # 1=ICP registration for 3D point cloud / laser data
+            'Kp/MaxFeatures': '-1',               # Disables visual bag-of-words (avoids missing visual feature warnings)
+            'Grid/FlatObstacleDetected': 'false'
         }],
         remappings=[
             ('odom', '/odometry/filtered'),
@@ -198,12 +201,25 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_rviz'))
     )
 
-    # 10. Launch Everything!
+    # 10. Nav2 Navigation Stack
+    nav2_launch_file = os.path.join(pkg_path, 'launch', 'navigation.launch.py')
+    nav2_stack = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(nav2_launch_file),
+        launch_arguments={'use_sim_time': 'true'}.items(),
+        condition=IfCondition(LaunchConfiguration('use_nav2'))
+    )
+
+    # 11. Launch Everything!
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_rviz',
             default_value='true',
             description='Whether to launch RViz2'
+        ),
+        DeclareLaunchArgument(
+            'use_nav2',
+            default_value='true',
+            description='Whether to launch Nav2 navigation stack'
         ),
         node_robot_state_publisher,
         gazebo,
@@ -216,5 +232,6 @@ def generate_launch_description():
         start_ekf_node,
         TimerAction(period=5.0, actions=[navsat_transform]),
         TimerAction(period=7.0, actions=[rtabmap_node]),
-        TimerAction(period=8.5, actions=[rviz_node])
+        TimerAction(period=8.5, actions=[rviz_node]),
+        TimerAction(period=10.0, actions=[nav2_stack])
     ])
