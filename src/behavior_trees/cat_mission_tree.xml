@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ==============================================================================
+     Shaastra 2027 Caterpillar Autonomy Challenge - Full Mission Behavior Tree
+     Compatible with Groot / Groot2 (BehaviorTree.CPP v3 & v4)
+     Target: Maximum 600 Autonomy Points (2 Hands-Free Cycles)
+     ============================================================================== -->
+<root BTCPP_format="4" main_tree_to_execute="CaterpillarAutonomyMission">
+  
+  <BehaviorTree ID="CaterpillarAutonomyMission">
+    <Sequence name="MainMissionSequence">
+      
+      <!-- ================= PHASE 1: STARTING ZONE POSE LOCK ================= -->
+      <Sequence name="StartupAndFiducialLock">
+        <SetBlackboard output_key="cycle_counter" value="0"/>
+        <SetBlackboard output_key="target_cycles" value="2"/>
+        <ArUcoPoseLock name="LockStartingZonePose" 
+                       timeout_sec="10.0" 
+                       required_tag_count="3" 
+                       output_pose="{current_rover_pose}"/>
+        <DeclareHandsFreeAutonomy name="DeclareHandsFreeStart" 
+                                  zone="STARTING_ZONE" 
+                                  mcj_logged="true"/>
+      </Sequence>
+
+      <!-- ================= PHASE 2: COMPETITION AUTONOMOUS CYCLES ================= -->
+      <!-- Executes 2 full hands-free cycles for the maximum 600 Autonomy Points -->
+      <Repeat num_cycles="2" name="RepeatTwoAutonomyCycles">
+        <Sequence name="FullAutonomyCycle">
+
+          <!-- STEP A: OUTBOUND SLALOM TO EXCAVATION ZONE (250 pts) -->
+          <Sequence name="OutboundTraversal">
+            <SetBlackboard output_key="slalom_waypoint" value="4.80;2.80;0.0;1.0"/>
+            <SetBlackboard output_key="excavation_goal" value="8.10;2.50;0.0;1.0"/>
+            
+            <!-- Navigate through Obstacle Zone channel, dodging craters & boulders -->
+            <PipelineSequence name="SlalomToExcavation">
+              <RateController hz="1.0">
+                <RecoveryNode number_of_retries="2" name="NavigateToMidpoint">
+                  <NavigateToPose goal="{slalom_waypoint}" name="NavToMidfieldWaypoint"/>
+                  <ClearEntireCostmap name="ClearCostmapOnStuck" service_name="global_costmap/clear_entirely_global_costmap"/>
+                </RecoveryNode>
+              </RateController>
+              
+              <RecoveryNode number_of_retries="3" name="NavigateToExcavationZone">
+                <NavigateToPose goal="{excavation_goal}" name="EnterExcavationZone"/>
+                <BackUp backup_dist="0.20" backup_speed="0.10" name="BackUpIfStuck"/>
+              </RecoveryNode>
+            </PipelineSequence>
+          </Sequence>
+
+          <!-- STEP B: EXCAVATION AUTONOMY (75 pts) -->
+          <Sequence name="AutonomousExcavation">
+            <StartExcavatorDrum speed_rpm="120.0" direction="FORWARD" name="StartDrumSpin"/>
+            <DriveForward distance="0.35" speed="0.08" name="CrawlForwardDiggingSand"/>
+            <StopExcavatorDrum name="StopDrumRetract" sand_captured="true"/>
+          </Sequence>
+
+          <!-- STEP C: RETURN TRAVERSAL & FIDUCIAL RE-ACQUISITION -->
+          <Sequence name="InboundTraversalAndRelocalization">
+            <SetBlackboard output_key="reacquire_waypoint" value="3.60;3.60;0.0;1.0"/>
+            
+            <!-- Slalom back towards the Starting Zone wall -->
+            <NavigateToPose goal="{reacquire_waypoint}" name="NavToReacquireWaypoint"/>
+            
+            <!-- Re-observe Wall Markers (Tag 2 & Tag 1) to zero out sand wheel slip drift -->
+            <ArUcoRelocalize name="ReacquireMarkersAndZeroDrift" 
+                             timeout_sec="5.0" 
+                             output_drift_offset="{drift_correction}"/>
+            
+            <!-- Crucial Rule Gate: Confirm hands-free status BEFORE crossing into Construction Zone -->
+            <ConfirmHandsFreeGate name="ConfirmConstructionZoneEntry" 
+                                  boundary_x="2.0" 
+                                  boundary_y="1.5" 
+                                  autonomy_points="50"/>
+          </Sequence>
+
+          <!-- STEP D: PRECISION BERM DUMP (50 pts) -->
+          <Sequence name="PrecisionBermDump">
+            <SetBlackboard output_key="berm_target_pose" value="1.15;0.75;3.14159;0.0"/>
+            
+            <!-- Precision approach to the 1.25m x 0.90m Berm Area -->
+            <NavigateToPose goal="{berm_target_pose}" name="AlignOverBerm"/>
+            
+            <!-- Discharge sand onto the berm -->
+            <ReverseDrumDeposit duration_sec="6.0" speed_rpm="100.0" name="DischargeSandOntoBerm"/>
+            <ConfirmBermConstruction name="ValidateSandDeposited" min_weight_kg="2.0"/>
+          </Sequence>
+
+        </Sequence>
+      </Repeat>
+
+      <!-- ================= MISSION COMPLETE ================= -->
+      <AlwaysSuccess name="MissionCompleteMaxPointsSecured"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- ================= GROOT NODE MODEL DEFINITIONS ================= -->
+  <TreeNodesModel>
+    <Action ID="ArUcoPoseLock">
+      <input_port name="timeout_sec" type="double">Max wait time in seconds</input_port>
+      <input_port name="required_tag_count" type="int">Minimum unique markers detected</input_port>
+      <output_port name="output_pose" type="std::string">Global starting pose in arena frame</output_port>
+    </Action>
+    <Action ID="ArUcoRelocalize">
+      <input_port name="timeout_sec" type="double">Max re-acquisition window</input_port>
+      <output_port name="output_drift_offset" type="std::string">Calculated drift correction</output_port>
+    </Action>
+    <Action ID="DeclareHandsFreeAutonomy">
+      <input_port name="zone" type="std::string">Active competition zone</input_port>
+      <input_port name="mcj_logged" type="bool">Logged for judging validation</input_port>
+    </Action>
+    <Action ID="ConfirmHandsFreeGate">
+      <input_port name="boundary_x" type="double">X threshold for Construction Zone</input_port>
+      <input_port name="boundary_y" type="double">Y threshold for Construction Zone</input_port>
+      <input_port name="autonomy_points" type="int">Points awarded at boundary</input_port>
+    </Action>
+    <Action ID="StartExcavatorDrum">
+      <input_port name="speed_rpm" type="double">Drum rotational speed</input_port>
+      <input_port name="direction" type="std::string">FORWARD or REVERSE</input_port>
+    </Action>
+    <Action ID="DriveForward">
+      <input_port name="distance" type="double">Meters to crawl while collecting sand</input_port>
+      <input_port name="speed" type="double">Linear crawl speed in m/s</input_port>
+    </Action>
+    <Action ID="StopExcavatorDrum">
+      <output_port name="sand_captured" type="bool">Payload confirmation</output_port>
+    </Action>
+    <Action ID="ReverseDrumDeposit">
+      <input_port name="duration_sec" type="double">Seconds to discharge sand</input_port>
+      <input_port name="speed_rpm" type="double">Discharge RPM</input_port>
+    </Action>
+    <Action ID="ConfirmBermConstruction">
+      <input_port name="min_weight_kg" type="double">Minimum deposited sand threshold</input_port>
+    </Action>
+    <Action ID="NavigateToPose">
+      <input_port name="goal" type="std::string">Target pose: X;Y;Yaw;W</input_port>
+    </Action>
+    <Action ID="BackUp">
+      <input_port name="backup_dist" type="double">Distance to reverse in meters</input_port>
+      <input_port name="backup_speed" type="double">Speed in m/s</input_port>
+    </Action>
+    <Action ID="ClearEntireCostmap">
+      <input_port name="service_name" type="std::string">Service name to clear</input_port>
+    </Action>
+  </TreeNodesModel>
+
+</root>

@@ -1,0 +1,365 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+    <world name="cat_arena">
+        <!-- Coordinate Frame Anchor -->
+        <spherical_coordinates>
+            <surface_model>EARTH_WGS84</surface_model>
+            <latitude_deg>12.8378</latitude_deg>
+            <longitude_deg>80.1371</longitude_deg>
+            <elevation>35.0</elevation>
+            <heading_deg>0</heading_deg>
+        </spherical_coordinates>
+
+        <!-- Core Simulation Physics Plugins -->
+        <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+        <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+        <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+        <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
+        <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+
+        <physics name="1ms" type="ignored">
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+        </physics>
+        <gravity>0 0 -9.81</gravity>
+
+        <!-- Lighting: Sunlight overhead illuminating the arena -->
+        <light type="directional" name="sun">
+            <cast_shadows>true</cast_shadows>
+            <pose>4.5 2.5 10 0 0 0</pose>
+            <diffuse>0.9 0.88 0.82 1</diffuse>
+            <specular>0.2 0.2 0.2 1</specular>
+            <attenuation>
+                <range>1000</range>
+                <constant>0.9</constant>
+                <linear>0.01</linear>
+                <quadratic>0.001</quadratic>
+            </attenuation>
+            <direction>-0.3 0.2 -0.9</direction>
+        </light>
+
+        <!-- Secondary soft fill light -->
+        <light type="point" name="arena_fill_light">
+            <pose>4.5 2.5 4.0 0 0 0</pose>
+            <diffuse>0.3 0.3 0.35 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <attenuation>
+                <range>20</range>
+                <constant>0.5</constant>
+                <linear>0.05</linear>
+                <quadratic>0.01</quadratic>
+            </attenuation>
+        </light>
+
+        <!-- ================= 1. ARENA PERIMETER ENCLOSURE WALLS ================= -->
+        <!-- Rule: 9m x 5m inner arena dimensions with 0.5m high boundary walls -->
+        <model name="arena_enclosure">
+            <static>true</static>
+            <!-- West Wall (X = 0, along Y [0..5]) -->
+            <link name="west_wall">
+                <pose>-0.05 2.5 0.25 0 0 0</pose>
+                <collision name="collision">
+                    <geometry><box><size>0.1 5.2 0.5</size></box></geometry>
+                </collision>
+                <visual name="visual">
+                    <geometry><box><size>0.1 5.2 0.5</size></box></geometry>
+                    <material>
+                        <ambient>0.35 0.35 0.38 1</ambient>
+                        <diffuse>0.45 0.45 0.48 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+
+            <!-- East Wall (X = 9, along Y [0..5]) -->
+            <link name="east_wall">
+                <pose>9.05 2.5 0.25 0 0 0</pose>
+                <collision name="collision">
+                    <geometry><box><size>0.1 5.2 0.5</size></box></geometry>
+                </collision>
+                <visual name="visual">
+                    <geometry><box><size>0.1 5.2 0.5</size></box></geometry>
+                    <material>
+                        <ambient>0.35 0.35 0.38 1</ambient>
+                        <diffuse>0.45 0.45 0.48 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+
+            <!-- South Wall (Y = 0, along X [0..9]) -->
+            <link name="south_wall">
+                <pose>4.5 -0.05 0.25 0 0 0</pose>
+                <collision name="collision">
+                    <geometry><box><size>9.2 0.1 0.5</size></box></geometry>
+                </collision>
+                <visual name="visual">
+                    <geometry><box><size>9.2 0.1 0.5</size></box></geometry>
+                    <material>
+                        <ambient>0.35 0.35 0.38 1</ambient>
+                        <diffuse>0.45 0.45 0.48 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+
+            <!-- North Wall (Y = 5, along X [0..9]) -->
+            <link name="north_wall">
+                <pose>4.5 5.05 0.25 0 0 0</pose>
+                <collision name="collision">
+                    <geometry><box><size>9.2 0.1 0.5</size></box></geometry>
+                </collision>
+                <visual name="visual">
+                    <geometry><box><size>9.2 0.1 0.5</size></box></geometry>
+                    <material>
+                        <ambient>0.35 0.35 0.38 1</ambient>
+                        <diffuse>0.45 0.45 0.48 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- ================= 2. 3D SAND TERRAIN WITH CRATER DEPRESSIONS ================= -->
+        <model name="cat_sand_terrain">
+            <static>true</static>
+            <pose>0 0 0 0 0 0</pose>
+            <link name="terrain_link">
+                <collision name="collision">
+                    <geometry>
+                        <mesh>
+                            <uri>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/models/cat_terrain.obj</uri>
+                        </mesh>
+                    </geometry>
+                    <surface>
+                        <friction>
+                            <ode>
+                                <mu>0.85</mu>
+                                <mu2>0.65</mu2>
+                            </ode>
+                        </friction>
+                    </surface>
+                </collision>
+                <visual name="visual">
+                    <geometry>
+                        <mesh>
+                            <uri>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/models/cat_terrain.obj</uri>
+                        </mesh>
+                    </geometry>
+                    <material>
+                        <ambient>0.85 0.85 0.85 1.0</ambient>
+                        <diffuse>0.95 0.95 0.95 1.0</diffuse>
+                        <pbr>
+                            <metal>
+                                <albedo_map>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/textures/cat_sand_diffuse.png</albedo_map>
+                                <roughness>0.92</roughness>
+                            </metal>
+                        </pbr>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- ================= 3. ZONE VISUAL MARKINGS (ON THE SAND) ================= -->
+        <model name="arena_zone_markings">
+            <static>true</static>
+            <!-- Starting Zone Outline (2m x 2m at X:[0..2], Y:[3..5]) -->
+            <link name="start_zone_border">
+                <pose>1.0 3.005 0.003 0 0 0</pose>
+                <visual name="vis">
+                    <geometry><box><size>2.0 0.04 0.004</size></box></geometry>
+                    <material><ambient>0.1 0.8 0.2 1</ambient><diffuse>0.1 0.8 0.2 1</diffuse></material>
+                </visual>
+            </link>
+            <link name="start_zone_border_right">
+                <pose>2.005 4.0 0.003 0 0 0</pose>
+                <visual name="vis">
+                    <geometry><box><size>0.04 2.0 0.004</size></box></geometry>
+                    <material><ambient>0.1 0.8 0.2 1</ambient><diffuse>0.1 0.8 0.2 1</diffuse></material>
+                </visual>
+            </link>
+
+            <!-- Construction Zone Outline (2m x 1.5m at X:[0..2], Y:[0..1.5]) -->
+            <link name="construction_zone_border">
+                <pose>1.0 1.505 0.003 0 0 0</pose>
+                <visual name="vis">
+                    <geometry><box><size>2.0 0.04 0.004</size></box></geometry>
+                    <material><ambient>0.2 0.4 0.9 1</ambient><diffuse>0.2 0.4 0.9 1</diffuse></material>
+                </visual>
+            </link>
+            <link name="construction_zone_border_right">
+                <pose>2.005 0.75 0.003 0 0 0</pose>
+                <visual name="vis">
+                    <geometry><box><size>0.04 1.5 0.004</size></box></geometry>
+                    <material><ambient>0.2 0.4 0.9 1</ambient><diffuse>0.2 0.4 0.9 1</diffuse></material>
+                </visual>
+            </link>
+
+            <!-- BERM TARGET AREA (1.25m x 0.9m at X:[0.375..1.625], Y:[0.30..1.20]) -->
+            <link name="berm_target_marker">
+                <pose>1.0 0.75 0.004 0 0 0</pose>
+                <visual name="vis">
+                    <geometry><box><size>1.25 0.90 0.003</size></box></geometry>
+                    <material>
+                        <ambient>0.85 0.70 0.15 0.6</ambient>
+                        <diffuse>0.95 0.80 0.20 0.7</diffuse>
+                    </material>
+                </visual>
+            </link>
+
+            <!-- Excavation Zone Dividing Line (X = 7.5, Y:[0..5]) -->
+            <link name="excavation_zone_line">
+                <pose>7.5 2.5 0.003 0 0 0</pose>
+                <visual name="vis">
+                    <geometry><box><size>0.04 5.0 0.004</size></box></geometry>
+                    <material><ambient>0.85 0.2 0.7 1</ambient><diffuse>0.85 0.2 0.7 1</diffuse></material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- ================= 4. RANDOM ROCKY BOULDERS IN OBSTACLE ZONE ================= -->
+        <!-- Rule: At least 3 boulders 30-40 cm diameter, non-traversable -->
+        <model name="boulder_1">
+            <static>true</static>
+            <pose>4.8 4.3 0.12 0 0 0.5</pose>
+            <link name="link">
+                <collision name="col">
+                    <geometry>
+                        <sphere><radius>0.18</radius></sphere>
+                    </geometry>
+                </collision>
+                <visual name="vis">
+                    <geometry>
+                        <mesh><uri>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/models/boulder_1.obj</uri></mesh>
+                    </geometry>
+                    <material>
+                        <ambient>0.4 0.38 0.35 1</ambient>
+                        <diffuse>0.5 0.48 0.45 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <model name="boulder_2">
+            <static>true</static>
+            <pose>4.6 1.3 0.13 0 0 1.2</pose>
+            <link name="link">
+                <collision name="col">
+                    <geometry>
+                        <sphere><radius>0.20</radius></sphere>
+                    </geometry>
+                </collision>
+                <visual name="vis">
+                    <geometry>
+                        <mesh><uri>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/models/boulder_2.obj</uri></mesh>
+                    </geometry>
+                    <material>
+                        <ambient>0.45 0.42 0.39 1</ambient>
+                        <diffuse>0.55 0.52 0.49 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <model name="boulder_3">
+            <static>true</static>
+            <pose>6.4 3.8 0.12 0 0 2.1</pose>
+            <link name="link">
+                <collision name="col">
+                    <geometry>
+                        <sphere><radius>0.17</radius></sphere>
+                    </geometry>
+                </collision>
+                <visual name="vis">
+                    <geometry>
+                        <mesh><uri>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/models/boulder_3.obj</uri></mesh>
+                    </geometry>
+                    <material>
+                        <ambient>0.38 0.36 0.34 1</ambient>
+                        <diffuse>0.48 0.46 0.44 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- Boulder in Excavation Zone (Rule: "Similar or smaller boulders may also be present in the excavation zone") -->
+        <model name="boulder_excavation">
+            <static>true</static>
+            <pose>8.1 1.8 0.10 0 0 0.8</pose>
+            <link name="link">
+                <collision name="col">
+                    <geometry>
+                        <sphere><radius>0.14</radius></sphere>
+                    </geometry>
+                </collision>
+                <visual name="vis">
+                    <geometry>
+                        <mesh><uri>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/models/boulder_4.obj</uri></mesh>
+                    </geometry>
+                    <material>
+                        <ambient>0.42 0.40 0.38 1</ambient>
+                        <diffuse>0.52 0.50 0.48 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- ================= 5. ARUCO MARKERS ON STARTING ZONE WALLS ================= -->
+        <!-- Rule: "Markers allowed ONLY on the wall attached to the starting zone. Max 25x25cm, within 60cm height." -->
+        <!-- Marker 0: On West Wall (X = 0), at Y = 4.0m, Z = 0.35m (Facing +X) -->
+        <model name="aruco_marker_0">
+            <static>true</static>
+            <pose>0.005 4.0 0.35 1.5708 0 1.5708</pose>
+            <link name="link">
+                <visual name="visual">
+                    <geometry><plane><normal>0 0 1</normal><size>0.24 0.24</size></plane></geometry>
+                    <material>
+                        <diffuse>1 1 1 1</diffuse>
+                        <pbr>
+                            <metal>
+                                <albedo_map>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/textures/aruco_tag_0.png</albedo_map>
+                            </metal>
+                        </pbr>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- Marker 1: On North Wall (Y = 5.0), at X = 1.0m, Z = 0.35m (Facing -Y) -->
+        <model name="aruco_marker_1">
+            <static>true</static>
+            <pose>1.0 4.995 0.35 1.5708 0 0</pose>
+            <link name="link">
+                <visual name="visual">
+                    <geometry><plane><normal>0 0 1</normal><size>0.24 0.24</size></plane></geometry>
+                    <material>
+                        <diffuse>1 1 1 1</diffuse>
+                        <pbr>
+                            <metal>
+                                <albedo_map>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/textures/aruco_tag_1.png</albedo_map>
+                            </metal>
+                        </pbr>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- Marker 2: On North Wall (Y = 5.0), at X = 1.8m, Z = 0.35m (Facing -Y) -->
+        <model name="aruco_marker_2">
+            <static>true</static>
+            <pose>1.8 4.995 0.35 1.5708 0 0</pose>
+            <link name="link">
+                <visual name="visual">
+                    <geometry><plane><normal>0 0 1</normal><size>0.24 0.24</size></plane></geometry>
+                    <material>
+                        <diffuse>1 1 1 1</diffuse>
+                        <pbr>
+                            <metal>
+                                <albedo_map>file:///home/yashvant/Desktop/MaRs-Caterpillar/src/worlds/textures/aruco_tag_2.png</albedo_map>
+                            </metal>
+                        </pbr>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+    </world>
+</sdf>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ================= ROVER PHYSICAL PROPERTIES ================= -->
+  <!-- Conforms to Caterpillar Autonomy Challenge envelope: 1.5m L x 0.75m W x 0.75m H, Max 80kg -->
+  
+  <!-- Central Chassis Box -->
+  <xacro:property name="chassis_length" value="0.58" />
+  <xacro:property name="chassis_width"  value="0.42" />
+  <xacro:property name="chassis_height" value="0.22" />
+  <xacro:property name="chassis_mass"   value="18.0" />
+  <xacro:property name="chassis_z"      value="0.38" /> <!-- Center of chassis above ground -->
+
+  <!-- Four Straddle Legs (Angled Tubular Extrusions) -->
+  <xacro:property name="wheelbase"      value="0.88" /> <!-- Distance between front and rear wheel axles -->
+  <xacro:property name="track_width"    value="0.76" /> <!-- Distance between left and right wheel centers -->
+  <xacro:property name="wheel_x_offset" value="${wheelbase / 2.0}" />  <!-- 0.44m -->
+  <xacro:property name="wheel_y_offset" value="${track_width / 2.0}" /> <!-- 0.38m -->
+  <xacro:property name="leg_radius"     value="0.020" /> <!-- 40mm diameter aluminum tube -->
+  <xacro:property name="leg_mass"       value="1.2" />
+
+  <!-- Wheels (Cleated Sand Wheels matching uploaded images) -->
+  <xacro:property name="wheel_radius"   value="0.15" />  <!-- 30 cm diameter -->
+  <xacro:property name="wheel_width"    value="0.11" />  <!-- 11 cm width -->
+  <xacro:property name="wheel_mass"     value="2.2" />
+  <xacro:property name="wheel_z"        value="${wheel_radius}" /> <!-- 0.15m axle height -->
+
+  <!-- Sensor Mast & ZED 2i Camera -->
+  <xacro:property name="mast_height"    value="0.26" />
+  <xacro:property name="mast_radius"    value="0.015" />
+  <xacro:property name="camera_pitch"   value="0.35" /> <!-- Tilted downward ~20 degrees to view 0.5-3.5m terrain -->
+
+  <!-- Materials & Colors -->
+  <material name="cat_gold">
+    <color rgba="0.82 0.65 0.15 1.0"/>
+  </material>
+  <material name="aluminum_silver">
+    <color rgba="0.75 0.77 0.80 1.0"/>
+  </material>
+  <material name="wheel_white">
+    <color rgba="0.92 0.90 0.85 1.0"/>
+  </material>
+  <material name="matte_black">
+    <color rgba="0.12 0.12 0.14 1.0"/>
+  </material>
+  <material name="estop_red">
+    <color rgba="0.85 0.10 0.10 1.0"/>
+  </material>
+  <material name="zed_dark">
+    <color rgba="0.22 0.22 0.24 1.0"/>
+  </material>
+  <material name="accent_blue">
+    <color rgba="0.15 0.45 0.85 1.0"/>
+  </material>
+
+</robot>

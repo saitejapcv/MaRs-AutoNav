@@ -1,0 +1,63 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50
+    use_sim_time: true
+    
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+      
+    diff_drive_base_controller:
+      type: diff_drive_controller/DiffDriveController
+
+# -------------------------------------------------------------
+# 4WD Paired Skid-Steer Controller Configuration
+# -------------------------------------------------------------
+diff_drive_base_controller:
+  ros__parameters:
+    use_sim_time: true
+
+    # Paired wheels for skid-steer base
+    left_wheel_names:
+      - front_left_wheel_joint
+      - rear_left_wheel_joint
+    right_wheel_names:
+      - front_right_wheel_joint
+      - rear_right_wheel_joint
+
+    # Rover geometry (from cat_rover_properties.xacro)
+    wheel_separation: 0.76  # Track width (0.38 * 2)
+    wheel_radius: 0.15      # 15 cm radius
+
+    # Effective track width multiplier for sand skid-steer
+    # Accounts for tire scrub and lateral slip during turning in sand
+    wheel_separation_multiplier: 1.35
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+
+    # Odometry Settings
+    publish_rate: 50.0
+    odom_frame_id: odom
+    base_frame_id: base_footprint
+    pose_covariance_diagonal: [0.001, 0.001, 1.0e-3, 1.0e-3, 1.0e-3, 0.01]
+    twist_covariance_diagonal: [0.001, 0.001, 1.0e-3, 1.0e-3, 1.0e-3, 0.01]
+
+    open_loop: false
+    enable_odom_tf: false  # Disabled so robot_localization EKF publishes odom -> base_footprint
+
+    cmd_vel_timeout: 0.5
+    use_stamped_vel: false
+
+    # Sand-Safe Velocity & Acceleration Limits
+    linear.x.has_velocity_limits: true
+    linear.x.max_velocity: 0.6
+    linear.x.min_velocity: -0.6
+    linear.x.has_acceleration_limits: true
+    linear.x.max_acceleration: 1.2
+    linear.x.has_jerk_limits: false
+
+    angular.z.has_velocity_limits: true
+    angular.z.max_velocity: 1.2
+    angular.z.min_velocity: -1.2
+    angular.z.has_acceleration_limits: true
+    angular.z.max_acceleration: 2.0
+    angular.z.has_jerk_limits: false
