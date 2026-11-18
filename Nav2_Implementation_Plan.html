@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nav2 Autonomous Navigation Implementation Plan</title>
+<style>
+  
+  body {
+    font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.55;
+    font-size: 10.5pt;
+    padding: 0;
+    margin: 0;
+  }
+  h1 {
+    page-break-before: avoid;
+    break-before: avoid;
+
+    color: #0369a1;
+    font-size: 21pt;
+    border-bottom: 2.5px solid #0284c7;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  h2 {
+    color: #0f172a;
+    font-size: 14pt;
+    border-bottom: 1.5px solid #e2e8f0;
+    padding-bottom: 5px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  h3 {
+    color: #1e293b;
+    font-size: 12pt;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  h4 {
+    color: #475569;
+    font-size: 11pt;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  p {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  pre {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'Liberation Mono', 'DejaVu Sans Mono', Consolas, monospace;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    margin: 10px 0;
+    overflow-x: auto;
+  }
+  code {
+    background-color: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: 'Liberation Mono', 'DejaVu Sans Mono', monospace;
+    font-size: 9pt;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+  }
+  pre code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+  }
+  .alert-box {
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 6px;
+    font-size: 10pt;
+    line-height: 1.5;
+  }
+  .alert-important {
+    background-color: #faf5ff;
+    border-left: 5px solid #9333ea;
+    color: #581c87;
+  }
+  .alert-note {
+    background-color: #f0f9ff;
+    border-left: 5px solid #0284c7;
+    color: #0369a1;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+  }
+  ul, ol {
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-left: 22px;
+  }
+  li {
+    margin-bottom: 5px;
+  }
+  a {
+    color: #0284c7;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<h1>Nav2 Autonomous Navigation Implementation Plan for Swerve Rover</h1>
+<h2>Goal Description</h2>
+<p>Integrate the <strong>ROS 2 Navigation Stack (Nav2)</strong> with the swerve rover codebase (<code>autonavtest</code>). </p>
+<p>The rover currently runs Gazebo Sim physics, swerve kinematics (<code>swerve_controller.py</code>), EKF odometry fusion (<code>robot_localization</code>), and 3D SLAM with 2D occupancy grid generation (<code>rtabmap</code>). This plan defines the complete architecture to bring up Nav2 for full waypoint navigation and obstacle avoidance using:
+1. <strong>RTAB-Map SLAM costmap integration</strong> (<code>/map</code> -&gt; <code>global_costmap</code>)
+2. <strong>Real-time 2D/3D obstacle detection</strong> (<code>/scan</code> + <code>/depth_camera/image_raw/points</code> -&gt; <code>local_costmap</code>)
+3. <strong>Holonomic / Omnidirectional path tracking</strong> (DWB local planner configured for swerve v_x, v_y, ω_z commands)
+4. <strong>Behavior Tree navigation orchestration</strong> (<code>bt_navigator</code> with recovery actions)
+5. <strong>Interactive RViz2 Nav2 goal setting and costmap visualization</strong></p>
+<hr />
+<h2>High-Level System Architecture</h2>
+<pre><code class="language-text">+------------------------------------------------------------------------------------+
+|                            APPLICATION / OPERATOR LAYER                            |
+|     RViz2 &quot;Nav2 Goal&quot; (Interactive Tool)       CLI Action / Python Commander API   |
++------------------------------------------------------------------------------------+
+                                           |  NavigateToPose Action Goal
+                                           v
++------------------------------------------------------------------------------------+
+|                       BEHAVIOR TREE NAVIGATOR (bt_navigator)                       |
+|               navigate_to_pose_w_replanning_and_recovery.xml                       |
++------------------------------------------------------------------------------------+
+         | ComputePathToPose               | FollowPath               | Recovery
+         v                                 v                          v
++-----------------------+      +-----------------------+      +----------------------+
+|    planner_server     |      |   controller_server   |      |   behavior_server    |
+| (NavFn Global Planner)|      | (DWB Holonomic Swerve)|      | (Spin, BackUp, Wait) |
++-----------------------+      +-----------------------+      +----------------------+
+            |                              |                             |
+            v                              v                             v
++-----------------------+      +-----------------------+      +----------------------+
+|    global_costmap     |      |     local_costmap     |      |   Costmap Clearing   |
+| (Static /map + Inflat)|      | (Rolling 6x6m + LiDAR)|      |   &amp; Error Recovery   |
++-----------------------+      +-----------------------+      +----------------------+
+                                           | cmd_vel_nav
+                                           v
+                               +-----------------------+
+                               |   velocity_smoother   |
+                               +-----------------------+
+                                           | cmd_vel (vx, vy, omega_z)
+                                           v
+                               +-----------------------+
+                               | swerve_controller.py  |
+                               | (Kinematics &amp; Motors) |
+                               +-----------------------+
+</code></pre>
+<hr />
+<h2>User Review Required</h2>
+<div class="alert-box alert-important"><strong>DESIGN DECISION:</strong> **Controller Choice (DWB Holonomic vs. MPPI):** We recommend starting with **DWB Local Planner** configured for **holonomic swerve motion** (`holonomic_robot: true`, allowing simultaneous v_x, v_y, and ω_z). DWB is lightweight, deterministic, and proven for swerve robots in simulation. Later, we can optionally test **MPPI** (`nav2_mppi_controller::MPPIController`) with `motion_model: "Omni"`.</div>
+
+<div class="alert-box alert-note"><strong>SYSTEM ARCHITECTURE NOTE:</strong> **AMCL / map_server is NOT needed:** Because our rover uses **RTAB-Map SLAM** in real-time, RTAB-Map directly publishes the `/map` topic and the `map -> odom` TF transform. Nav2 will run in **SLAM navigation mode** (without `amcl` or `map_server`).</div>
+
+<hr />
+<h2>Proposed Changes</h2>
+<p>Grouped by component layer:</p>
+<h3>Component 1: Nav2 Configuration</h3>
+<h4>[NEW] <a href="file:///home/yashvant/Desktop/MaRs-AutoNav/ros_ws/src/config/nav2_params.yaml"><code>ros_ws/src/config/nav2_params.yaml</code></a></h4>
+<p>Central configuration file for all Nav2 nodes:
+- <strong><code>bt_navigator</code></strong>: Behavior tree executor with default <code>navigate_to_pose_w_replanning_and_recovery.xml</code>.
+- <strong><code>planner_server</code></strong>:
+  - Plugin: <code>nav2_navfn_planner::NavFnPlanner</code> (Dijkstra / A<em> algorithm).
+  - Tolerance: 0.5m.
+- </em><em><code>controller_server</code></em><em>:
+  - Plugin: <code>dwb_core::DWBLocalPlanner</code>.
+  - Holonomic Configuration: <code>holonomic_robot: true</code>, <code>min_vel_x: -0.4</code>, <code>max_vel_x: 0.6</code>, <code>min_vel_y: -0.4</code>, <code>max_vel_y: 0.4</code>, <code>max_vel_theta: 0.8</code>.
+  - Trajectory Critic Weights: <code>BaseObstacle</code>, <code>PathAlign</code>, <code>GoalAlign</code>, <code>PathDist</code>, <code>GoalDist</code>.
+  - Goal Checker: <code>xy_goal_tolerance: 0.25m</code>, <code>yaw_goal_tolerance: 0.25 rad</code>.
+  - Progress Checker: <code>required_movement_radius: 0.2m</code>, <code>movement_time_allowance: 10.0s</code>.
+- </em><em><code>global_costmap</code></em><em>:
+  - Global frame: <code>map</code>, Robot frame: <code>base_footprint</code>.
+  - <code>track_unknown_space: true</code>.
+  - <code>robot_footprint: "[[0.60, 0.45], [0.60, -0.45], [-0.60, -0.45], [-0.60, 0.45]]"</code>.
+  - Layers: <code>static_layer</code> (listening to <code>/map</code>), <code>obstacle_layer</code> (marking <code>/scan</code>), <code>inflation_layer</code> (<code>inflation_radius: 0.75m</code>, <code>cost_scaling_factor: 3.0</code>).
+- </em><em><code>local_costmap</code></em><em>:
+  - Global frame: <code>odom</code>, Robot frame: <code>base_footprint</code>.
+  - <code>rolling_window: true</code>, <code>width: 6.0m</code>, <code>height: 6.0m</code>, <code>resolution: 0.05m</code>.
+  - Layers: <code>obstacle_layer</code> (marking <code>/scan</code>), <code>inflation_layer</code> (<code>inflation_radius: 0.75m</code>, <code>cost_scaling_factor: 3.0</code>).
+- </em><em><code>behavior_server</code></em><em>:
+  - Behaviors: <code>spin</code> (<code>nav2_behaviors/Spin</code>), <code>backup</code> (<code>nav2_behaviors/BackUp</code>), <code>wait</code> (<code>nav2_behaviors/Wait</code>).
+- </em><em><code>velocity_smoother</code></em><em>:
+  - Enforces acceleration limits (1.0 m/s²) and prevents abrupt swerve motor jumps.
+- </em><em><code>lifecycle_manager_navigation</code></em>*:
+  - Manages states for <code>controller_server</code>, <code>planner_server</code>, <code>behavior_server</code>, <code>bt_navigator</code>, <code>velocity_smoother</code>.</p>
+<hr />
+<h3>Component 2: Launch Architecture</h3>
+<h4>[NEW] <a href="file:///home/yashvant/Desktop/MaRs-AutoNav/ros_ws/src/launch/navigation.launch.py"><code>ros_ws/src/launch/navigation.launch.py</code></a></h4>
+<p>Dedicated launch file for Nav2 navigation nodes:
+- Declares launch arguments: <code>use_sim_time</code>, <code>params_file</code>, <code>autostart</code>.
+- Launches <code>controller_server</code>, <code>planner_server</code>, <code>behavior_server</code>, <code>bt_navigator</code>, <code>velocity_smoother</code>, and <code>lifecycle_manager</code>.
+- Remaps <code>cmd_vel_smoothed</code> -&gt; <code>/cmd_vel</code> so smooth outputs feed directly to <code>swerve_controller.py</code>.</p>
+<h4>[MODIFY] <a href="file:///home/yashvant/Desktop/MaRs-AutoNav/ros_ws/src/launch/launch_sim.launch.py"><code>ros_ws/src/launch/launch_sim.launch.py</code></a></h4>
+<ul>
+<li>Add launch argument <code>DeclareLaunchArgument('use_nav2', default_value='true')</code>.</li>
+<li>Sequence Nav2 startup via <code>TimerAction(period=10.0)</code> so RTAB-Map has already published <code>/map</code> and TF transforms before costmaps initialize.</li>
+</ul>
+<hr />
+<h3>Component 3: RViz2 Navigation Interface</h3>
+<h4>[MODIFY] <a href="file:///home/yashvant/Desktop/MaRs-AutoNav/ros_ws/src/config/autonavtest.rviz"><code>ros_ws/src/config/autonavtest.rviz</code></a></h4>
+<ul>
+<li>Add <strong>Nav2 Goal</strong> tool (<code>nav2_rviz_plugins/GoalTool</code>) to the top toolbar so the user can click and set waypoint targets directly on the map.</li>
+<li>Add Displays:</li>
+<li><strong>Global Costmap</strong> (<code>/global_costmap/costmap</code>) with safety gradient.</li>
+<li><strong>Local Costmap</strong> (<code>/local_costmap/costmap</code>) showing rolling window obstacle inflation.</li>
+<li><strong>Global Plan</strong> (<code>/plan</code>, green path) and <strong>Local Plan</strong> (<code>/local_plan</code>, blue trajectory).</li>
+<li><strong>Footprint</strong> (<code>/local_costmap/published_footprint</code>).</li>
+</ul>
+<hr />
+<h3>Component 4: Build System &amp; Dependencies</h3>
+<h4>[MODIFY] <a href="file:///home/yashvant/Desktop/MaRs-AutoNav/ros_ws/src/package.xml"><code>ros_ws/src/package.xml</code></a></h4>
+<ul>
+<li>Add execution dependencies:</li>
+<li><code>&lt;exec_depend&gt;nav2_bringup&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_bt_navigator&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_controller&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_planner&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_behaviors&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_costmap_2d&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_lifecycle_manager&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_dwb_controller&lt;/exec_depend&gt;</code></li>
+<li><code>&lt;exec_depend&gt;nav2_navfn_planner&lt;/exec_depend&gt;</code></li>
+</ul>
+<hr />
+<h2>Verification Plan</h2>
+<h3>Step 1: Clean Build Verification</h3>
+<pre><code class="language-bash">cd ~/Desktop/MaRs-AutoNav
+source /opt/ros/humble/setup.bash
+colcon build --symlink-install --packages-select autonavtest
+source install/setup.bash
+</code></pre>
+<p><em>Expected Result:</em> Clean build with 0 errors.</p>
+<h3>Step 2: Lifecycle &amp; Node Activation Check</h3>
+<pre><code class="language-bash">ros2 launch autonavtest launch_sim.launch.py
+</code></pre>
+<p>Check node status:</p>
+<pre><code class="language-bash">ros2 lifecycle get /controller_server
+ros2 lifecycle get /planner_server
+ros2 lifecycle get /bt_navigator
+</code></pre>
+<p><em>Expected Result:</em> All nodes report state <code>active [3]</code>.</p>
+<h3>Step 3: Interactive Goal Navigation in RViz2</h3>
+<ol>
+<li>In RViz2, click the <strong>"Nav2 Goal"</strong> tool on the top toolbar.</li>
+<li>Click and drag a target pose anywhere on the white mapped ground (e.g. 3 meters ahead, near a cone).</li>
+<li>Observe:</li>
+<li>Green global path planned around crater rims and cones.</li>
+<li>Swerve wheels pivot and drive the rover smoothly along the path.</li>
+<li>Rover reaches goal within 0.25 m tolerance and stops cleanly.</li>
+</ol>
+<h3>Step 4: CLI Action Goal Verification</h3>
+<p>In a separate terminal, send an autonomous waypoint command:</p>
+<pre><code class="language-bash">ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+&quot;{pose: {header: {frame_id: 'map'}, pose: {position: {x: 2.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}&quot;
+</code></pre>
+<p><em>Expected Result:</em> Goal accepted, rover drives to (x = 2.0, y = 0.0), and action reports <code>SUCCEEDED</code>.</p>
+</body>
+</html>
